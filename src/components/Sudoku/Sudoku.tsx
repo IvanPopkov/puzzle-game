@@ -1,84 +1,159 @@
 import "./Sudoku.css";
 import React, {useState} from "react";
-import {generateSudoku} from "../../utils/puzzleGenerator.ts";
+import {generateSudoku, verifyEligibility} from "../../utils/puzzle-generator.ts";
 import NumberWheel, {NumberWheelInputProps} from "./NumberWheel/NumberWheel.tsx";
+import {Candidates} from "./Candidates/Candidates.tsx";
+import {FormControlLabel, Switch} from "@mui/material";
+
+enum CellType {
+  GIVEN_NUMBER = 'given-number',
+  USER_NUMBER = 'user-number',
+  CANDIDATES = 'canditates',
+  EMPTY = 'empty'
+}
 
 const SudokuGenerator = () => {
-  const PUZZLE_MAX_SIZE = 9;
-  let gridSize = PUZZLE_MAX_SIZE;
+  const GRID_SIZE = 9;
+  const MAX_INDEX = GRID_SIZE ** 2;
 
-  const [puzzleSize, setPuzzleSize] = useState(PUZZLE_MAX_SIZE);
-  const [puzzle, setPuzzle] = useState<(number | string)[]>([]);
-  const [solution, setSolution] = useState<number[]>([]);
-  const [userSolution, setUserSolution] = useState<(number | '')[]>(Array(PUZZLE_MAX_SIZE * PUZZLE_MAX_SIZE).fill(''));
+  const [puzzle, setPuzzle] = useState<(number | '')[]>([]);
+  const [candidates, setCandidates] = useState<number[][]>(Array.from({ length: MAX_INDEX }, () => []));
+  const [userSolution, setUserSolution] = useState<(number | '')[]>(Array(MAX_INDEX).fill(''));
   const [errorCellIndexes, setErrorCellIndexes] = useState<number[]>([]);
+  const [isInBlueprintMode, setIsInBlueprintMode] = useState<boolean>(false);
 
   const [wheel, setWheel] = useState<NumberWheelInputProps | null>(null);
   const closeWheel = () => setWheel(null);
 
   const generatePuzzle = () => {
-    gridSize = puzzleSize;
-    const {puzzle, solution} = generateSudoku(puzzleSize);
-    setUserSolution(Array(PUZZLE_MAX_SIZE * PUZZLE_MAX_SIZE).fill(''));
+    const { puzzle } = generateSudoku();
+    setUserSolution(Array(MAX_INDEX).fill(''));
     setPuzzle(puzzle);
-    setSolution(solution);
     setErrorCellIndexes([]);
-  };
-
-  const handlePuzzleSizeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setPuzzleSize(event.target.value === "" ? PUZZLE_MAX_SIZE : Number(event.target.value));
+    setCandidates(Array.from({ length: MAX_INDEX }, () => []));
   };
 
   const handleClick = (x: number, y: number, e: React.MouseEvent<HTMLDivElement>) => {
     const {clientX, clientY} = e;
-    const index = y * puzzleSize + x;
-    setWheel({x: clientX, y: clientY, index, n: puzzleSize + 1});
+    const index = y * GRID_SIZE + x;
+    setWheel({x: clientX, y: clientY, index, n: GRID_SIZE + 1});
   };
 
-  const validateSolution = (userSolution: (number | '')[], solution: number[]) => {
-    const errorIndexList = [];
-    for (let i = 0; i < solution.length; i++) {
-      if (userSolution[i] !== '' && userSolution[i] !== solution[i]) {
-        errorIndexList.push(i);
+  const validateSolution = (puzzle: (number | '')[], num: number, index: number) => {
+    const violations = verifyEligibility(puzzle, num, index);
+    if (violations.length > 0) {
+      const errorIndexes = [];
+      if (violations.includes('column')) {
+        const x = index % GRID_SIZE;
+        const columnIndexes = [...Array(GRID_SIZE).keys()].map(row => x + GRID_SIZE * row);
+        errorIndexes.push(...columnIndexes);
       }
+      if (violations.includes('row')) {
+        const y = Math.floor(index / GRID_SIZE);
+        const columnIndexes = [...Array(GRID_SIZE).keys()].map(column => column + GRID_SIZE * y);
+        errorIndexes.push(...columnIndexes);
+      }
+      setErrorCellIndexes(errorIndexes);
     }
-    setErrorCellIndexes(errorIndexList);
+  };
+
+  const handleCandidate = (num: number | '', index: number) => {
+    if (num && candidates[index].includes(num)) {
+      const numIndex = candidates[index].findIndex(value => value === num);
+      candidates[index].splice(numIndex, 1);
+    } else if (num) {
+      candidates[index].push(num);
+    }
+  };
+
+  const handleUserInput = (num: number | '', index: number) => {
+    userSolution[index] = num;
+    setUserSolution(userSolution);
+    if (num !== '') {
+      validateSolution(puzzle, num, index);
+    } else {
+      setErrorCellIndexes([]);
+    }
   };
 
   const handleSelect = (num: number | '', index: number) => {
     closeWheel();
 
-    userSolution[index] = num;
-    setUserSolution(userSolution);
-    validateSolution(userSolution, solution);
+    if (isInBlueprintMode) {
+      handleCandidate(num, index);
+    } else {
+      handleUserInput(num, index);
+    }
   };
+
+  const fillCandidates = () => {
+    setCandidates([...Array(MAX_INDEX).fill([...Array(GRID_SIZE).keys()].map(val => val + 1))]);
+  };
+
+  const getCellType = (index: number) => {
+    if (puzzle[index] !== '') {
+      return CellType.GIVEN_NUMBER;
+    }
+    if (userSolution[index] !== '') {
+      return CellType.USER_NUMBER;
+    }
+    if (candidates[index].length > 0) {
+      return CellType.CANDIDATES;
+    }
+    return CellType.EMPTY;
+  }
 
   return (
     <div className="container">
       <p><a href="/">Back</a></p>
       <p>This is a sudoku game</p>
       {wheel && <NumberWheel {...wheel} onSelect={handleSelect} onClose={closeWheel}/>}
+      <FormControlLabel
+        control={
+          <Switch
+            checked={isInBlueprintMode}
+            onChange={(e) => setIsInBlueprintMode(e.target.checked)}
+          />
+        }
+        label={isInBlueprintMode ? "Blueprint" : "Editing"}
+      />
       <div className="play-table">
         <table>
           <tbody>
-          {[...Array(gridSize)].map((_, indexY) => (
+          {[...Array(GRID_SIZE)].map((_, indexY) => (
             <tr key={indexY}>
-              {[...Array(gridSize)].map((_, indexX) => {
-                const index = gridSize * indexY + indexX;
+              {[...Array(GRID_SIZE)].map((_, indexX) => {
+                const index = GRID_SIZE * indexY + indexX;
                 const numberInPuzzle = puzzle[index];
 
                 return (
                   <td
                     key={`${indexX}-${indexY}`}
-                    className="cell"
+                    className={"cell " + (errorCellIndexes.includes(index) ? "error" : "")}
                   >
-                    {numberInPuzzle !== '' && (<div className="solution-cell">{numberInPuzzle}</div>)}
-                    {numberInPuzzle === '' && (
+                    {getCellType(index) === CellType.GIVEN_NUMBER && (
                       <div
-                        className={"user-solution-cell " + (errorCellIndexes.includes(index) ? "error" : "")}
-                        onClick={(e) => handleClick(indexX, indexY, e)}
+                        className={CellType.GIVEN_NUMBER}
                       >
-                        {userSolution[index]}
+                        {numberInPuzzle}
+                      </div>
+                    )}
+                    {getCellType(index) !== CellType.GIVEN_NUMBER && (
+                      <div tabIndex={0} style={{
+                        width: '100%',
+                        height: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}
+                           onClick={(e) => handleClick(indexX, indexY, e)}
+                      >
+                        {getCellType(index) === CellType.USER_NUMBER && (
+                          userSolution[index]
+                        )}
+                        {getCellType(index) === CellType.CANDIDATES && (
+                          <Candidates candidateList={candidates[index]}/>
+                        )}
                       </div>
                     )}
                   </td>
@@ -89,8 +164,7 @@ const SudokuGenerator = () => {
           </tbody>
         </table>
       </div>
-      <input type="number" min="3" max={PUZZLE_MAX_SIZE} value={puzzleSize} onChange={handlePuzzleSizeChange}/>
-      <button onClick={() => validateSolution(userSolution, solution)}>Validate solution</button>
+      <button onClick={fillCandidates}>Fill empty cells</button>
       <button onClick={generatePuzzle}>Generate new puzzle</button>
     </div>
   );
