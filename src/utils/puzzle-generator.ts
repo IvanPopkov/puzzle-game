@@ -23,7 +23,7 @@ export const verifyEligibility = (
   return violations;
 };
 
-const generateSolution = () => {
+export const generateSolution = () => {
   const solution: number[] = Array(PUZZLE_SIZE * PUZZLE_SIZE).fill(0);
   for (let i = 0; i < PUZZLE_SIZE; i++) {
     const candidates = [...Array(PUZZLE_SIZE).keys()]
@@ -86,5 +86,3 @@ export const generateSudoku = () => {
 
   return { puzzle };
 };
-
-
