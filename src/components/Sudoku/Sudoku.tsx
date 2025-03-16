@@ -17,7 +17,7 @@ const SudokuGenerator = () => {
   const MAX_INDEX = GRID_SIZE ** 2;
 
   const [puzzle, setPuzzle] = useState<(number | '')[]>([]);
-  const [candidates, setCandidates] = useState<number[][]>(Array.from({ length: MAX_INDEX }, () => []));
+  const [candidates, setCandidates] = useState<number[][]>(Array.from({length: MAX_INDEX}, () => []));
   const [userSolution, setUserSolution] = useState<(number | '')[]>(Array(MAX_INDEX).fill(''));
   const [errorCellIndexes, setErrorCellIndexes] = useState<number[]>([]);
   const [isInBlueprintMode, setIsInBlueprintMode] = useState<boolean>(false);
@@ -26,11 +26,11 @@ const SudokuGenerator = () => {
   const closeWheel = () => setWheel(null);
 
   const generatePuzzle = () => {
-    const { puzzle } = generateSudoku();
+    const {puzzle} = generateSudoku();
     setUserSolution(Array(MAX_INDEX).fill(''));
     setPuzzle(puzzle);
     setErrorCellIndexes([]);
-    setCandidates(Array.from({ length: MAX_INDEX }, () => []));
+    setCandidates(Array.from({length: MAX_INDEX}, () => []));
   };
 
   const handleClick = (x: number, y: number, e: React.MouseEvent<HTMLDivElement>) => {
@@ -87,7 +87,8 @@ const SudokuGenerator = () => {
   };
 
   const fillCandidates = () => {
-    setCandidates([...Array(MAX_INDEX).fill([...Array(GRID_SIZE).keys()].map(val => val + 1))]);
+    setCandidates(
+      Array.from({length: MAX_INDEX}, () => [...Array(GRID_SIZE).keys()].map(val => val + 1)));
   };
 
   const getCellType = (index: number) => {
@@ -129,7 +130,7 @@ const SudokuGenerator = () => {
                 return (
                   <td
                     key={`${indexX}-${indexY}`}
-                    className={"cell " + (errorCellIndexes.includes(index) ? "error" : "")}
+                    className={"cell " + (errorCellIndexes.includes(index) ? ' error' : '') + (indexY % 3 === 2 ? ' cell-with-border' : '')}
                   >
                     {getCellType(index) === CellType.GIVEN_NUMBER && (
                       <div
