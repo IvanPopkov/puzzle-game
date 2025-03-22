@@ -8,5 +8,6 @@ export default defineConfig({
   test: {
 
   },
-  plugins: [react()]
+  plugins: [react()],
+  base: '/puzzle-game/'
 })
