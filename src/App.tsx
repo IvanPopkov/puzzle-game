@@ -8,7 +8,7 @@ function App() {
 
   return (
     <>
-      <BrowserRouter>
+      <BrowserRouter basename="/puzzle-game">
         <Routes>
           <Route path="/" element={<MainMenu/>}/>
           <Route path="/sudoku" element={<Sudoku/>}/>
