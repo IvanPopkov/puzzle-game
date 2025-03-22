@@ -21,6 +21,7 @@ const SudokuGenerator = () => {
   const [userSolution, setUserSolution] = useState<(number | '')[]>(Array(MAX_INDEX).fill(''));
   const [errorCellIndexes, setErrorCellIndexes] = useState<number[]>([]);
   const [isInBlueprintMode, setIsInBlueprintMode] = useState<boolean>(false);
+  const [oneClickNumber, setOneClickNumber] = useState<number | null>(null);
 
   const [wheel, setWheel] = useState<NumberWheelInputProps | null>(null);
   const closeWheel = () => setWheel(null);
@@ -31,12 +32,16 @@ const SudokuGenerator = () => {
     setPuzzle(puzzle);
     setErrorCellIndexes([]);
     setCandidates(Array.from({length: MAX_INDEX}, () => []));
+    setOneClickNumber(null);
   };
 
-  const handleClick = (x: number, y: number, e: React.MouseEvent<HTMLDivElement>) => {
-    const {clientX, clientY} = e;
-    const index = y * GRID_SIZE + x;
-    setWheel({x: clientX, y: clientY, index, n: GRID_SIZE + 1});
+  const handleClick = (index: number, e: React.MouseEvent<HTMLDivElement>) => {
+    if (oneClickNumber !== null) {
+      handleSelect(oneClickNumber, index);
+    } else {
+      const {clientX, clientY} = e;
+      setWheel({x: clientX, y: clientY, index, n: GRID_SIZE + 1});
+    }
   };
 
   const validateSolution = (puzzle: (number | '')[], num: number, index: number) => {
@@ -67,6 +72,9 @@ const SudokuGenerator = () => {
   };
 
   const handleUserInput = (num: number | '', index: number) => {
+    if (userSolution[index] === num) {
+      num = '';
+    }
     userSolution[index] = num;
     setUserSolution(userSolution);
     if (num !== '') {
@@ -102,6 +110,11 @@ const SudokuGenerator = () => {
       return CellType.CANDIDATES;
     }
     return CellType.EMPTY;
+  };
+
+  const handleOneClickNumber = (index: number) => {
+    const newNumber = index + 1;
+    setOneClickNumber(oneClickNumber === newNumber ? null : newNumber);
   }
 
   return (
@@ -118,6 +131,17 @@ const SudokuGenerator = () => {
         }
         label={isInBlueprintMode ? "Blueprint" : "Editing"}
       />
+      <div className="one-click-bar">
+        { Array.from({ length: GRID_SIZE }).map((_, index) => (
+          <button
+            key={index}
+            className={oneClickNumber === index + 1 ? 'selected-number' : ''}
+            onClick={() => handleOneClickNumber(index)}
+          >
+            {index + 1}
+          </button>
+        ))}
+      </div>
       <div className="play-table">
         <table>
           <tbody>
@@ -147,7 +171,7 @@ const SudokuGenerator = () => {
                         alignItems: 'center',
                         justifyContent: 'center'
                       }}
-                           onClick={(e) => handleClick(indexX, indexY, e)}
+                           onClick={(e) => handleClick(index, e)}
                       >
                         {getCellType(index) === CellType.USER_NUMBER && (
                           userSolution[index]
