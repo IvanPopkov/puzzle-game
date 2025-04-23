@@ -3,13 +3,17 @@
 <head>
     <meta charset="UTF-8" />
     <title>Redirecting…</title>
-    <meta http-equiv="refresh" content="0; url=/puzzle-game/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script>
-        // JavaScript fallback to preserve path
-        const path = location.pathname.replace('/puzzle-game', '');
-        const search = location.search;
-        const hash = location.hash;
-        location.replace('/puzzle-game/' + path + search + hash);
+        // Strip the /puzzle-game prefix and then redirect cleanly
+        const base = "/puzzle-game";
+        const path = location.pathname.startsWith(base)
+            ? location.pathname.slice(base.length)
+            : location.pathname;
+        const newUrl = `${base}/?redirect=${encodeURIComponent(path + location.search + location.hash)}`;
+
+        // Go to root and let React Router handle the redirect
+        location.replace(newUrl);
     </script>
 </head>
 <body>
