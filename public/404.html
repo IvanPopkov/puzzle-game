@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Redirecting…</title>
+    <meta http-equiv="refresh" content="0; url=/puzzle-game/" />
+    <script>
+        // JavaScript fallback to preserve path
+        const path = location.pathname.replace('/puzzle-game', '');
+        const search = location.search;
+        const hash = location.hash;
+        location.replace('/puzzle-game/' + path + search + hash);
+    </script>
+</head>
+<body>
+<p>Redirecting…</p>
+</body>
+</html>
