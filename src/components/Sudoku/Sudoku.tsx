@@ -27,11 +27,16 @@ const SudokuGenerator = () => {
   const closeWheel = () => setWheel(null);
 
   const generatePuzzle = () => {
+    clearInput();
     const {puzzle} = generateSudoku();
-    setUserSolution(Array(MAX_INDEX).fill(''));
     setPuzzle(puzzle);
-    setErrorCellIndexes([]);
+
+  };
+
+  const clearInput = () => {
+    setUserSolution(Array(MAX_INDEX).fill(''));
     setCandidates(Array.from({length: MAX_INDEX}, () => []));
+    setErrorCellIndexes([]);
     setOneClickNumber(null);
   };
 
@@ -97,6 +102,10 @@ const SudokuGenerator = () => {
   const fillCandidates = () => {
     setCandidates(
       Array.from({length: MAX_INDEX}, () => [...Array(GRID_SIZE).keys()].map(val => val + 1)));
+  };
+
+  const clearAll = () => {
+    clearInput();
   };
 
   const getCellType = (index: number) => {
@@ -191,6 +200,7 @@ const SudokuGenerator = () => {
       </div>
       <button onClick={fillCandidates}>Fill empty cells</button>
       <button onClick={generatePuzzle}>Generate new puzzle</button>
+      <button onClick={clearAll}>Clear</button>
     </div>
   );
 };

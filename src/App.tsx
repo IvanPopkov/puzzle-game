@@ -7,7 +7,7 @@ import Sudoku from "./components/Sudoku/Sudoku.tsx";
 function App() {
 
   return (
-    <HashRouter basename="/">
+    <HashRouter>
       <Routes>
         <Route path="/" element={<MainMenu/>}/>
         <Route path="/sudoku" element={<Sudoku/>}/>
