@@ -1,17 +1,9 @@
-import {getSudokuRulesViolations, isSudokuValid, SudokuRuleViolation} from "./sudoku-validity-check";
+import {isSudokuValid} from "./sudoku-validity-check";
 import {SUDOKU_GRID_SIZE} from "./sudoku.constants.ts";
 
 const BLOCK_SIZE = 3;
 const BOARD_SIZE_IN_BLOCKS = 3;
 
-
-export const verifyEligibilityV1 = (puzzle: (number | '')[], candidate: number, index: number): SudokuRuleViolation[] => {
-  const boardToVerify = [...puzzle];
-  boardToVerify[index] = candidate;
-  const filteredBoard = boardToVerify.map(el => el === '' ? 0 : el);
-
-  return getSudokuRulesViolations(filteredBoard);
-};
 
 const verifyEligibilityV2 = (puzzle: (number | '')[], candidate: number, index: number): boolean => {
   const boardToVerify = [...puzzle];

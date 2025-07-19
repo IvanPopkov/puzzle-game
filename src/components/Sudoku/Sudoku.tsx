@@ -1,10 +1,10 @@
 import "./Sudoku.css";
 import React, {useState} from "react";
-import {generateSudoku, verifyEligibilityV1} from "../../utils/puzzle-generator.ts";
+import {generateSudoku} from "../../utils/puzzle-generator.ts";
 import NumberWheel, {NumberWheelInputProps} from "./NumberWheel/NumberWheel.tsx";
 import {Candidates} from "./Candidates/Candidates.tsx";
 import {FormControlLabel, Switch} from "@mui/material";
-import {SudokuRuleViolation} from "../../utils/sudoku-validity-check.ts";
+import {getSudokuRulesViolations, SudokuRuleViolation} from "../../utils/sudoku-validity-check.ts";
 
 enum CellType {
   GIVEN_NUMBER = 'given-number',
@@ -50,8 +50,16 @@ const SudokuGenerator = () => {
     }
   };
 
+  const getViolationsForCandidate = (puzzle: (number | '')[], candidate: number, index: number): SudokuRuleViolation[] => {
+    const boardToVerify = [...puzzle];
+    boardToVerify[index] = candidate;
+    const filteredBoard = boardToVerify.map(el => el === '' ? 0 : el);
+
+    return getSudokuRulesViolations(filteredBoard);
+  };
+
   const validateSolution = (puzzle: (number | '')[], num: number, index: number) => {
-    const violations = verifyEligibilityV1(puzzle, num, index);
+    const violations = getViolationsForCandidate(puzzle, num, index);
     if (violations.length > 0) {
       const errorIndexes = [];
       if (violations.includes(SudokuRuleViolation.COLUMN)) {
