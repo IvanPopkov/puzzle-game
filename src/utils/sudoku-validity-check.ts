@@ -1,5 +1,11 @@
 import {SUDOKU_GRID_SIZE, SUDOKU_BOARD_SIZE} from "./sudoku.constants.ts";
 
+export enum SudokuRuleViolation {
+  ROW = 'row',
+  COLUMN = 'column',
+  BLOCK = 'block'
+}
+
 export const isSudokuValid = (board: number[]) : boolean => {
   const isIncorrectBoardLength = board.length !== SUDOKU_BOARD_SIZE;
 
@@ -7,6 +13,22 @@ export const isSudokuValid = (board: number[]) : boolean => {
     ? false
     : areRowsValid(board) && areColumnsValid(board) && areBlocksValid(board);
 };
+
+export const getSudokuRulesViolations = (board: number[]): SudokuRuleViolation[] => {
+  const violations: SudokuRuleViolation[] = [];
+
+  if (!areRowsValid(board)) {
+    violations.push(SudokuRuleViolation.ROW);
+  }
+  if (!areColumnsValid(board)) {
+    violations.push(SudokuRuleViolation.COLUMN);
+  }
+  if (!areBlocksValid(board)) {
+    violations.push(SudokuRuleViolation.BLOCK);
+  }
+
+  return violations;
+}
 
 export const areRowsValid = (board: number[]): boolean => {
   for (let i = 0; i < SUDOKU_GRID_SIZE; i++) {

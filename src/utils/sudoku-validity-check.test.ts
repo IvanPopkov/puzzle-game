@@ -4,7 +4,7 @@ import {
   areColumnsValid,
   isContainingDuplicates,
   isSudokuValid,
-  areBlocksValid
+  areBlocksValid, SudokuRuleViolation, getSudokuRulesViolations
 } from "./sudoku-validity-check.ts";
 import {SUDOKU_GRID_SIZE} from "./sudoku.constants.ts";
 
@@ -143,24 +143,42 @@ describe('Sudoku validity check', () => {
     });
   });
 
+  describe('getSudokuRulesViolations', () => {
+    it.each([
+      { board: boardWithIncorrectRow(), expected: [SudokuRuleViolation.ROW] },
+      { board: boardWithIncorrectColumn(), expected: [SudokuRuleViolation.COLUMN] },
+      { board: boardWithIncorrectBlock(), expected: [SudokuRuleViolation.BLOCK] },
+      { board: PUZZLE_9_9, expected: [] },
+      { board: boardWithIncorrectEverything(), expected: [SudokuRuleViolation.ROW, SudokuRuleViolation.COLUMN, SudokuRuleViolation.BLOCK] }
+    ])('should return correct violations', ({ board, expected }) => {
+      expect(getSudokuRulesViolations(board)).toEqual(expected);
+    });
+  });
 
   const boardWithIncorrectRow = () => {
     const incorrectBoard = [...PUZZLE_4_9];
     const someIndex = 30;
-    incorrectBoard[someIndex] = incorrectBoard[someIndex - 1];
+    incorrectBoard[someIndex] = incorrectBoard[someIndex - 3];
     return incorrectBoard;
   }
 
   const boardWithIncorrectColumn = () => {
     const incorrectBoard = [...PUZZLE_5_9];
-    const someIndex = 36; // 4th row, 1st column
+    const someIndex = 54; // 7th row, 1st column
     incorrectBoard[someIndex] = incorrectBoard[someIndex - SUDOKU_GRID_SIZE];
     return incorrectBoard;
   }
 
   const boardWithIncorrectBlock = () => {
     const incorrectBoard = [...PUZZLE_5_9];
-    const someIndex = 46; // 5th row, 2st column
+    const someIndex = 50; // 6th row, 6th column
+    incorrectBoard[someIndex] = incorrectBoard[someIndex - SUDOKU_GRID_SIZE - 1];
+    return incorrectBoard;
+  }
+
+  const boardWithIncorrectEverything = () => {
+    const incorrectBoard = [...PUZZLE_5_9];
+    const someIndex = 46; // 5th row, 2nd column
     incorrectBoard[someIndex] = incorrectBoard[someIndex - SUDOKU_GRID_SIZE - 1];
     return incorrectBoard;
   }
