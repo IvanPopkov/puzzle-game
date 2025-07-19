@@ -1,6 +1,5 @@
 import {describe, expect, it} from "vitest";
 import {
-  verifyEligibility,
   generateBlock,
   integrateBlockToBoard,
   generateBoard, generateCandidates
@@ -60,27 +59,6 @@ describe('Puzzle Generator', () => {
 
     // THEN
     expect(PUZZLE_4_9).toStrictEqual(PUZZLE_5_9);
-  });
-
-  describe('verifyValidity', () => {
-    [
-      ['column', 2, 33, ['column']],
-      ['row', 9, 33, ['row']],
-      ['row and column', 3, 30, ['column', 'row'] ],
-      ['block', 1, 50, ['block']]
-    ].forEach(testCase => {
-      it(`should return ${testCase[0]} when ${testCase[0]} violated`, () => {
-        // GIVEN
-        const board = [...PUZZLE_5_9];
-        board[50] = '';
-
-        // WHEN
-        const result = verifyEligibility(board, Number(testCase[1]), Number(testCase[2]));
-
-        // THEN
-        expect(result).toStrictEqual(testCase[3]);
-      });
-    })
   });
 
   describe('generateBlock', () => {

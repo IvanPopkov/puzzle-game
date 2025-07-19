@@ -1,9 +1,10 @@
 import "./Sudoku.css";
 import React, {useState} from "react";
-import {generateSudoku, verifyEligibility} from "../../utils/puzzle-generator.ts";
+import {generateSudoku, verifyEligibilityV1} from "../../utils/puzzle-generator.ts";
 import NumberWheel, {NumberWheelInputProps} from "./NumberWheel/NumberWheel.tsx";
 import {Candidates} from "./Candidates/Candidates.tsx";
 import {FormControlLabel, Switch} from "@mui/material";
+import {SudokuRuleViolation} from "../../utils/sudoku-validity-check.ts";
 
 enum CellType {
   GIVEN_NUMBER = 'given-number',
@@ -50,15 +51,15 @@ const SudokuGenerator = () => {
   };
 
   const validateSolution = (puzzle: (number | '')[], num: number, index: number) => {
-    const violations = verifyEligibility(puzzle, num, index);
+    const violations = verifyEligibilityV1(puzzle, num, index);
     if (violations.length > 0) {
       const errorIndexes = [];
-      if (violations.includes('column')) {
+      if (violations.includes(SudokuRuleViolation.COLUMN)) {
         const x = index % GRID_SIZE;
         const columnIndexes = [...Array(GRID_SIZE).keys()].map(row => x + GRID_SIZE * row);
         errorIndexes.push(...columnIndexes);
       }
-      if (violations.includes('row')) {
+      if (violations.includes(SudokuRuleViolation.ROW)) {
         const y = Math.floor(index / GRID_SIZE);
         const columnIndexes = [...Array(GRID_SIZE).keys()].map(column => column + GRID_SIZE * y);
         errorIndexes.push(...columnIndexes);

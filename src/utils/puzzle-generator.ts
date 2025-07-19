@@ -1,47 +1,28 @@
-const PUZZLE_SIZE = 9;
+import {getSudokuRulesViolations, isSudokuValid, SudokuRuleViolation} from "./sudoku-validity-check";
+import {SUDOKU_GRID_SIZE} from "./sudoku.constants.ts";
+
 const BLOCK_SIZE = 3;
 const BOARD_SIZE_IN_BLOCKS = 3;
 
-export const verifyEligibility = (
-  puzzle: (number | '')[], candidate: number, index: number
-) => {
-  const violations = [];
-  const candidateX = index % PUZZLE_SIZE;
-  const candidateY = Math.floor(index / PUZZLE_SIZE);
-  // column check
-  for (let j = 0; j < PUZZLE_SIZE; j++) {
-    const elementIndex = candidateX + j * PUZZLE_SIZE;
-    if (j !== candidateY && puzzle[elementIndex] === candidate) {
-      violations.push('column');
-      break;
-    }
-  }
-  // row check
-  for (let i = 0; i < PUZZLE_SIZE; i++) {
-    const elementIndex = candidateY * PUZZLE_SIZE + i;
-    if (i !== candidateX && puzzle[elementIndex] === candidate) {
-      violations.push('row');
-      break;
-    }
-  }
-  // block check
-  const blockX = Math.floor(index % PUZZLE_SIZE / BOARD_SIZE_IN_BLOCKS);
-  const blockY = Math.floor(Math.floor(index / PUZZLE_SIZE) / BOARD_SIZE_IN_BLOCKS);
-  const firstElementIndex = blockY * PUZZLE_SIZE * BLOCK_SIZE + blockX * BLOCK_SIZE;
-  for (let k = 0; k < PUZZLE_SIZE; k++) {
-    const elementX = k % BLOCK_SIZE;
-    const elementY = Math.floor(k / BLOCK_SIZE);
-    const elementIndex = firstElementIndex + elementY * PUZZLE_SIZE + elementX;
-    if (elementIndex !== index && puzzle[elementIndex] === candidate) {
-      violations.push('block');
-      break;
-    }
-  }
-  return violations;
+
+export const verifyEligibilityV1 = (puzzle: (number | '')[], candidate: number, index: number): SudokuRuleViolation[] => {
+  const boardToVerify = [...puzzle];
+  boardToVerify[index] = candidate;
+  const filteredBoard = boardToVerify.map(el => el === '' ? 0 : el);
+
+  return getSudokuRulesViolations(filteredBoard);
+};
+
+const verifyEligibilityV2 = (puzzle: (number | '')[], candidate: number, index: number): boolean => {
+  const boardToVerify = [...puzzle];
+  boardToVerify[index] = candidate;
+  const filteredBoard = boardToVerify.map(el => el === '' ? 0 : el);
+
+  return isSudokuValid(filteredBoard);
 };
 
 export const generateCandidates = () => {
-  return [...Array(PUZZLE_SIZE).keys()]
+  return [...Array(SUDOKU_GRID_SIZE).keys()]
     .map(value => value + 1)
     .sort(() => Math.random() - 0.5);
 }
@@ -55,10 +36,10 @@ export const generateBlock = (board: (number | '')[], blockIndex: number, candid
 
     const numberX = blockX * BLOCK_SIZE + k % BLOCK_SIZE;
     const numberY = blockY * BLOCK_SIZE + Math.floor(k / BLOCK_SIZE);
-    const numberIndex = numberY * PUZZLE_SIZE + numberX;
+    const numberIndex = numberY * SUDOKU_GRID_SIZE + numberX;
 
     const eligibleCandidateIndex = candidateList.findIndex(
-      candidate => verifyEligibility(board, candidate, numberIndex).length === 0
+      candidate => verifyEligibilityV2(board, candidate, numberIndex)
     );
     if (eligibleCandidateIndex < 0) {
       k = 0;
@@ -74,17 +55,17 @@ export const generateBlock = (board: (number | '')[], blockIndex: number, candid
 export const integrateBlockToBoard = (board: (number | '')[], blockIndex: number, block: number[]) => {
   const blockX = blockIndex % BOARD_SIZE_IN_BLOCKS;
   const blockY = Math.floor(blockIndex / BOARD_SIZE_IN_BLOCKS);
-  const firstElementIndex = blockY * PUZZLE_SIZE * BLOCK_SIZE + blockX * BLOCK_SIZE;
+  const firstElementIndex = blockY * SUDOKU_GRID_SIZE * BLOCK_SIZE + blockX * BLOCK_SIZE;
 
   block.forEach((number, index) => {
     const elementX = index % BLOCK_SIZE;
     const elementY = Math.floor(index / BLOCK_SIZE);
-    const elementIndex = firstElementIndex + elementY * PUZZLE_SIZE + elementX;
+    const elementIndex = firstElementIndex + elementY * SUDOKU_GRID_SIZE + elementX;
     board[elementIndex] = number;
   });
 };
 
-const initBoard = () => Array(PUZZLE_SIZE * PUZZLE_SIZE).fill('');
+const initBoard = () => Array(SUDOKU_GRID_SIZE * SUDOKU_GRID_SIZE).fill('');
 
 export const generateBoard = (generateCandidates: () => number[]) => {
   let board = initBoard();
@@ -112,7 +93,7 @@ const generateSolution = () => {
 }
 
 const generatePropositions = (puzzle: (number | '')[], index: number) => {
-  return [...Array(PUZZLE_SIZE).keys()].map(val => val + 1).filter(val => verifyEligibility(puzzle, val, index).length === 0);
+  return [...Array(SUDOKU_GRID_SIZE).keys()].map(val => val + 1).filter(val => verifyEligibilityV2(puzzle, val, index));
 }
 
 const isPuzzleSolvable = (puzzle: (number | '')[], removedIndexes: number[], indexToRemove: number) => {
