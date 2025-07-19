@@ -36,13 +36,7 @@ export const areColumnsValid = (board: number[]): boolean => {
 export const areBlocksValid = (board: number[]): boolean => {
   for (let blockRow = 0; blockRow < 3; blockRow++) {
     for (let blockCol = 0; blockCol < 3; blockCol++) {
-      const block: number[] = [];
-      for (let row = 0; row < 3; row++) {
-        for (let col = 0; col < 3; col++) {
-          const index = (blockRow * 3 + row) * SUDOKU_GRID_SIZE + (blockCol * 3 + col);
-          block.push(board[index]);
-        }
-      }
+      const block = extractBlock(blockRow, blockCol, board);
       if (isContainingDuplicates(block)) {
         return false;
       }
@@ -51,6 +45,18 @@ export const areBlocksValid = (board: number[]): boolean => {
 
   return true;
 };
+
+const extractBlock = (blockRow: number, blockCol: number, board: number[]) => {
+  const block: number[] = [];
+  for (let row = 0; row < 3; row++) {
+    for (let col = 0; col < 3; col++) {
+      const index = (blockRow * 3 + row) * SUDOKU_GRID_SIZE + (blockCol * 3 + col);
+      block.push(board[index]);
+    }
+  }
+
+  return block;
+}
 
 export const isContainingDuplicates = (row: number[]): boolean => {
   const seen: Set<number> = new Set();
