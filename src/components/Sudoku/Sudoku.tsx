@@ -6,13 +6,8 @@ import {Candidates} from "./Candidates/Candidates.tsx";
 import {FormControlLabel, Switch} from "@mui/material";
 import {getSudokuRulesViolations, SudokuRuleViolation} from "@utils/sudoku-validity-check.ts";
 import {SUDOKU_BOARD_SIZE, SUDOKU_GRID_SIZE} from "@utils/sudoku.constants.ts";
+import {CellType} from "./BoardCell/CellType.ts";
 
-enum CellType {
-  GIVEN_NUMBER = 'given-number',
-  USER_NUMBER = 'user-number',
-  CANDIDATES = 'canditates',
-  EMPTY = 'empty'
-}
 
 const SudokuGenerator = () => {
 
