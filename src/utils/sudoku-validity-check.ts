@@ -1,4 +1,11 @@
 import {SUDOKU_GRID_SIZE, SUDOKU_BOARD_SIZE} from "./sudoku.constants.ts";
+import {extractBlock} from "./block-extract.ts";
+
+export enum SudokuRuleViolation {
+  ROW = 'row',
+  COLUMN = 'column',
+  BLOCK = 'block'
+}
 
 export const isSudokuValid = (board: number[]) : boolean => {
   const isIncorrectBoardLength = board.length !== SUDOKU_BOARD_SIZE;
@@ -7,6 +14,22 @@ export const isSudokuValid = (board: number[]) : boolean => {
     ? false
     : areRowsValid(board) && areColumnsValid(board) && areBlocksValid(board);
 };
+
+export const getSudokuRulesViolations = (board: number[]): SudokuRuleViolation[] => {
+  const violations: SudokuRuleViolation[] = [];
+
+  if (!areRowsValid(board)) {
+    violations.push(SudokuRuleViolation.ROW);
+  }
+  if (!areColumnsValid(board)) {
+    violations.push(SudokuRuleViolation.COLUMN);
+  }
+  if (!areBlocksValid(board)) {
+    violations.push(SudokuRuleViolation.BLOCK);
+  }
+
+  return violations;
+}
 
 export const areRowsValid = (board: number[]): boolean => {
   for (let i = 0; i < SUDOKU_GRID_SIZE; i++) {
@@ -36,13 +59,7 @@ export const areColumnsValid = (board: number[]): boolean => {
 export const areBlocksValid = (board: number[]): boolean => {
   for (let blockRow = 0; blockRow < 3; blockRow++) {
     for (let blockCol = 0; blockCol < 3; blockCol++) {
-      const block: number[] = [];
-      for (let row = 0; row < 3; row++) {
-        for (let col = 0; col < 3; col++) {
-          const index = (blockRow * 3 + row) * SUDOKU_GRID_SIZE + (blockCol * 3 + col);
-          block.push(board[index]);
-        }
-      }
+      const block = extractBlock(blockRow, blockCol, board);
       if (isContainingDuplicates(block)) {
         return false;
       }

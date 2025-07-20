@@ -1,47 +1,21 @@
-const PUZZLE_SIZE = 9;
+import {isSudokuValid} from "./sudoku-validity-check";
+import {SUDOKU_GRID_SIZE} from "./sudoku.constants.ts";
+import {solveSudoku} from "./sudoku-solver.ts";
+
 const BLOCK_SIZE = 3;
 const BOARD_SIZE_IN_BLOCKS = 3;
 
-export const verifyEligibility = (
-  puzzle: (number | '')[], candidate: number, index: number
-) => {
-  const violations = [];
-  const candidateX = index % PUZZLE_SIZE;
-  const candidateY = Math.floor(index / PUZZLE_SIZE);
-  // column check
-  for (let j = 0; j < PUZZLE_SIZE; j++) {
-    const elementIndex = candidateX + j * PUZZLE_SIZE;
-    if (j !== candidateY && puzzle[elementIndex] === candidate) {
-      violations.push('column');
-      break;
-    }
-  }
-  // row check
-  for (let i = 0; i < PUZZLE_SIZE; i++) {
-    const elementIndex = candidateY * PUZZLE_SIZE + i;
-    if (i !== candidateX && puzzle[elementIndex] === candidate) {
-      violations.push('row');
-      break;
-    }
-  }
-  // block check
-  const blockX = Math.floor(index % PUZZLE_SIZE / BOARD_SIZE_IN_BLOCKS);
-  const blockY = Math.floor(Math.floor(index / PUZZLE_SIZE) / BOARD_SIZE_IN_BLOCKS);
-  const firstElementIndex = blockY * PUZZLE_SIZE * BLOCK_SIZE + blockX * BLOCK_SIZE;
-  for (let k = 0; k < PUZZLE_SIZE; k++) {
-    const elementX = k % BLOCK_SIZE;
-    const elementY = Math.floor(k / BLOCK_SIZE);
-    const elementIndex = firstElementIndex + elementY * PUZZLE_SIZE + elementX;
-    if (elementIndex !== index && puzzle[elementIndex] === candidate) {
-      violations.push('block');
-      break;
-    }
-  }
-  return violations;
-};
+export enum SudokuDifficulty {
+  EASY = 'easy',
+  MEDIUM = 'medium',
+  HARD = 'hard',
+  EXPERT = 'expert'
+}
 
-export const generateCandidates = () => {
-  return [...Array(PUZZLE_SIZE).keys()]
+type IndexRange = { left: number, right: number };
+
+export const generateCandidatesStrategy = () => {
+  return [...Array(SUDOKU_GRID_SIZE).keys()]
     .map(value => value + 1)
     .sort(() => Math.random() - 0.5);
 }
@@ -55,13 +29,12 @@ export const generateBlock = (board: (number | '')[], blockIndex: number, candid
 
     const numberX = blockX * BLOCK_SIZE + k % BLOCK_SIZE;
     const numberY = blockY * BLOCK_SIZE + Math.floor(k / BLOCK_SIZE);
-    const numberIndex = numberY * PUZZLE_SIZE + numberX;
+    const numberIndex = numberY * SUDOKU_GRID_SIZE + numberX;
 
     const eligibleCandidateIndex = candidateList.findIndex(
-      candidate => verifyEligibility(board, candidate, numberIndex).length === 0
+      candidate => validateSudoku(board, candidate, numberIndex)
     );
     if (eligibleCandidateIndex < 0) {
-      k = 0;
       return -1;
     }
 
@@ -71,20 +44,20 @@ export const generateBlock = (board: (number | '')[], blockIndex: number, candid
   return block;
 };
 
-export const integrateBlockToBoard = (board: (number | '')[], blockIndex: number, block: number[]) => {
+export const insertBlockIntoBoard = (board: (number | '')[], blockIndex: number, block: number[]) => {
   const blockX = blockIndex % BOARD_SIZE_IN_BLOCKS;
   const blockY = Math.floor(blockIndex / BOARD_SIZE_IN_BLOCKS);
-  const firstElementIndex = blockY * PUZZLE_SIZE * BLOCK_SIZE + blockX * BLOCK_SIZE;
+  const firstElementIndex = blockY * SUDOKU_GRID_SIZE * BLOCK_SIZE + blockX * BLOCK_SIZE;
 
   block.forEach((number, index) => {
     const elementX = index % BLOCK_SIZE;
     const elementY = Math.floor(index / BLOCK_SIZE);
-    const elementIndex = firstElementIndex + elementY * PUZZLE_SIZE + elementX;
+    const elementIndex = firstElementIndex + elementY * SUDOKU_GRID_SIZE + elementX;
     board[elementIndex] = number;
   });
 };
 
-const initBoard = () => Array(PUZZLE_SIZE * PUZZLE_SIZE).fill('');
+const initBoard = () => Array(SUDOKU_GRID_SIZE * SUDOKU_GRID_SIZE).fill('');
 
 export const generateBoard = (generateCandidates: () => number[]) => {
   let board = initBoard();
@@ -101,53 +74,72 @@ export const generateBoard = (generateCandidates: () => number[]) => {
       }
       continue;
     }
-    integrateBlockToBoard(board, blockIndex, block);
+    insertBlockIntoBoard(board, blockIndex, block);
     failedBlockGenerations = 0;
   }
   return board;
 };
 
-const generateSolution = () => {
-  return generateBoard(generateCandidates);
-}
-
-const generatePropositions = (puzzle: (number | '')[], index: number) => {
-  return [...Array(PUZZLE_SIZE).keys()].map(val => val + 1).filter(val => verifyEligibility(puzzle, val, index).length === 0);
-}
-
-const isPuzzleSolvable = (puzzle: (number | '')[], removedIndexes: number[], indexToRemove: number) => {
-  let solvable = false;
-  for (const index of [...removedIndexes, indexToRemove]) {
-    const propositions = generatePropositions(puzzle, index);
-    if (propositions.length === 1) {
-      solvable = true;
-      break;
-    }
-  }
-  return solvable;
-}
-
 const generatePuzzle = (solution: number[]) => {
-  const removedIndexes: number[] = [];
-  const puzzle: (number | '')[] = [...solution];
-  const shuffledIndexes = [...Array(solution.length).keys()].sort(() => Math.random() - 0.5);
+  const difficulty = SudokuDifficulty.EXPERT;
+  let puzzle: number[] = [];
 
-  for (const indexToRemove of shuffledIndexes) {
-    const valueToRemove = puzzle[indexToRemove];
-    removedIndexes.push(indexToRemove);
-    puzzle[indexToRemove] = '';
+  let stopCondition = false;
 
-    if (!isPuzzleSolvable(puzzle, removedIndexes, indexToRemove)) {
-      puzzle[indexToRemove] = valueToRemove;
-      break;
+  while (!stopCondition) {
+    let removedIndexesCount = 0;
+
+    puzzle = [...solution];
+    const shuffledIndexes = [...Array(solution.length).keys()].sort(() => Math.random() - 0.5);
+
+    for (const indexToRemove of shuffledIndexes) {
+      const valueToRemove = puzzle[indexToRemove];
+      puzzle[indexToRemove] = 0;
+      removedIndexesCount++;
+
+      if (solveSudoku(puzzle).length !== 1) {
+        puzzle[indexToRemove] = valueToRemove;
+        if (isDifficultyCorrectForPuzzle(difficulty, removedIndexesCount)) {
+          stopCondition = true;
+        }
+
+        break;
+      }
     }
   }
+
   return puzzle;
 };
 
+const isDifficultyCorrectForPuzzle = (difficulty: SudokuDifficulty, removedIndexesNumber: number): boolean => {
+  const removedIndexesInterval = getRemovedIndexesIntervalFromDifficulty(difficulty);
+  return removedIndexesNumber >= removedIndexesInterval.left && removedIndexesNumber <= removedIndexesInterval.right;
+}
+
 export const generateSudoku = () => {
-  const solution = generateSolution();
+  const solution = generateBoard(generateCandidatesStrategy)
   const puzzle = generatePuzzle(solution);
 
   return { puzzle };
 };
+
+const validateSudoku = (puzzle: (number | '')[], candidate: number, index: number): boolean => {
+  const boardToVerify = [...puzzle];
+  boardToVerify[index] = candidate;
+  const filteredBoard = boardToVerify.map(el => el === '' ? 0 : el);
+
+  return isSudokuValid(filteredBoard);
+};
+
+const getRemovedIndexesIntervalFromDifficulty = (difficulty: SudokuDifficulty): IndexRange => {
+  switch (difficulty) {
+    case SudokuDifficulty.EASY:
+      return { left: 1, right: 25 };
+    case SudokuDifficulty.MEDIUM:
+      return { left: 26, right: 35 };
+    case SudokuDifficulty.HARD:
+      return { left: 36, right: 48 };
+    case SudokuDifficulty.EXPERT:
+      return { left: 49, right: 63 };
+  }
+}

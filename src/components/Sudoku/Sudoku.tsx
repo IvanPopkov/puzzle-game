@@ -1,24 +1,19 @@
 import "./Sudoku.css";
 import React, {useState} from "react";
-import {generateSudoku, verifyEligibility} from "../../utils/puzzle-generator.ts";
+import {generateSudoku} from "@utils/puzzle-generator.ts";
 import NumberWheel, {NumberWheelInputProps} from "./NumberWheel/NumberWheel.tsx";
-import {Candidates} from "./Candidates/Candidates.tsx";
 import {FormControlLabel, Switch} from "@mui/material";
+import {getSudokuRulesViolations, SudokuRuleViolation} from "@utils/sudoku-validity-check.ts";
+import {SUDOKU_BOARD_SIZE, SUDOKU_GRID_SIZE} from "@utils/sudoku.constants.ts";
+import {CellType} from "./BoardCell/CellType.ts";
+import BoardCell from "./BoardCell/BoardCell.tsx";
 
-enum CellType {
-  GIVEN_NUMBER = 'given-number',
-  USER_NUMBER = 'user-number',
-  CANDIDATES = 'canditates',
-  EMPTY = 'empty'
-}
 
 const SudokuGenerator = () => {
-  const GRID_SIZE = 9;
-  const MAX_INDEX = GRID_SIZE ** 2;
 
-  const [puzzle, setPuzzle] = useState<(number | '')[]>([]);
-  const [candidates, setCandidates] = useState<number[][]>(Array.from({length: MAX_INDEX}, () => []));
-  const [userSolution, setUserSolution] = useState<(number | '')[]>(Array(MAX_INDEX).fill(''));
+  const [puzzle, setPuzzle] = useState<number[]>([]);
+  const [candidates, setCandidates] = useState<number[][]>(Array.from({length: SUDOKU_BOARD_SIZE}, () => []));
+  const [userSolution, setUserSolution] = useState<number[]>(Array(SUDOKU_BOARD_SIZE).fill(0));
   const [errorCellIndexes, setErrorCellIndexes] = useState<number[]>([]);
   const [isInBlueprintMode, setIsInBlueprintMode] = useState<boolean>(false);
   const [oneClickNumber, setOneClickNumber] = useState<number | null>(null);
@@ -30,44 +25,72 @@ const SudokuGenerator = () => {
     clearInput();
     const {puzzle} = generateSudoku();
     setPuzzle(puzzle);
-
   };
 
   const clearInput = () => {
-    setUserSolution(Array(MAX_INDEX).fill(''));
-    setCandidates(Array.from({length: MAX_INDEX}, () => []));
+    setUserSolution(Array(SUDOKU_BOARD_SIZE).fill(0));
+    setCandidates(Array.from({length: SUDOKU_BOARD_SIZE}, () => []));
     setErrorCellIndexes([]);
     setOneClickNumber(null);
   };
 
-  const handleClick = (index: number, e: React.MouseEvent<HTMLDivElement>) => {
-    if (oneClickNumber !== null) {
-      handleSelect(oneClickNumber, index);
-    } else {
-      const {clientX, clientY} = e;
-      setWheel({x: clientX, y: clientY, index, n: GRID_SIZE + 1});
+  const handleClick = (index: number) => {
+    return (e: React.MouseEvent<HTMLDivElement>) => {
+      if (oneClickNumber !== null) {
+        handleSelect(oneClickNumber, index);
+      } else {
+        const {clientX, clientY} = e;
+        setWheel({x: clientX, y: clientY, index, n: SUDOKU_GRID_SIZE + 1});
+      }
     }
   };
 
-  const validateSolution = (puzzle: (number | '')[], num: number, index: number) => {
-    const violations = verifyEligibility(puzzle, num, index);
+  const getViolationsForCandidate = (puzzle: number[], candidate: number, index: number): SudokuRuleViolation[] => {
+    const boardToVerify = [...puzzle];
+    boardToVerify[index] = candidate;
+
+    return getSudokuRulesViolations(boardToVerify);
+  };
+
+  const getInvalidBlockIndexes = (index: number) => {
+    const blockRow = Math.floor(index / SUDOKU_GRID_SIZE / 3);
+    const blockCol = Math.floor(index % SUDOKU_GRID_SIZE / 3);
+
+    const blockIndexes: number[] = [];
+
+    for (let rowOffset = 0; rowOffset < 3; rowOffset++) {
+      for (let colOffset = 0; colOffset < 3; colOffset++) {
+        const row = blockRow * 3 + rowOffset;
+        const col = blockCol * 3 + colOffset;
+        blockIndexes.push(row * 9 + col);
+      }
+    }
+    return blockIndexes;
+  }
+
+  const validateSolution = (puzzle: number[], num: number, index: number) => {
+    const violations = getViolationsForCandidate(puzzle, num, index);
     if (violations.length > 0) {
       const errorIndexes = [];
-      if (violations.includes('column')) {
-        const x = index % GRID_SIZE;
-        const columnIndexes = [...Array(GRID_SIZE).keys()].map(row => x + GRID_SIZE * row);
+      if (violations.includes(SudokuRuleViolation.COLUMN)) {
+        const x = index % SUDOKU_GRID_SIZE;
+        const columnIndexes = [...Array(SUDOKU_GRID_SIZE).keys()].map(row => x + SUDOKU_GRID_SIZE * row);
         errorIndexes.push(...columnIndexes);
       }
-      if (violations.includes('row')) {
-        const y = Math.floor(index / GRID_SIZE);
-        const columnIndexes = [...Array(GRID_SIZE).keys()].map(column => column + GRID_SIZE * y);
+      if (violations.includes(SudokuRuleViolation.ROW)) {
+        const y = Math.floor(index / SUDOKU_GRID_SIZE);
+        const columnIndexes = [...Array(SUDOKU_GRID_SIZE).keys()].map(column => column + SUDOKU_GRID_SIZE * y);
         errorIndexes.push(...columnIndexes);
+      }
+      if (violations.includes(SudokuRuleViolation.BLOCK)) {
+        const blockIndexes = getInvalidBlockIndexes(index);
+        errorIndexes.push(...blockIndexes);
       }
       setErrorCellIndexes(errorIndexes);
     }
   };
 
-  const handleCandidate = (num: number | '', index: number) => {
+  const handleCandidate = (num: number, index: number) => {
     if (num && candidates[index].includes(num)) {
       const numIndex = candidates[index].findIndex(value => value === num);
       candidates[index].splice(numIndex, 1);
@@ -76,20 +99,20 @@ const SudokuGenerator = () => {
     }
   };
 
-  const handleUserInput = (num: number | '', index: number) => {
+  const handleUserInput = (num: number, index: number) => {
     if (userSolution[index] === num) {
-      num = '';
+      num = 0;
     }
     userSolution[index] = num;
     setUserSolution(userSolution);
-    if (num !== '') {
+    if (num !== 0) {
       validateSolution(puzzle, num, index);
     } else {
       setErrorCellIndexes([]);
     }
   };
 
-  const handleSelect = (num: number | '', index: number) => {
+  const handleSelect = (num: number, index: number) => {
     closeWheel();
 
     if (isInBlueprintMode) {
@@ -101,7 +124,7 @@ const SudokuGenerator = () => {
 
   const fillCandidates = () => {
     setCandidates(
-      Array.from({length: MAX_INDEX}, () => [...Array(GRID_SIZE).keys()].map(val => val + 1)));
+      Array.from({length: SUDOKU_BOARD_SIZE}, () => [...Array(SUDOKU_GRID_SIZE).keys()].map(val => val + 1)));
   };
 
   const clearAll = () => {
@@ -109,10 +132,10 @@ const SudokuGenerator = () => {
   };
 
   const getCellType = (index: number) => {
-    if (puzzle[index] !== '') {
+    if (puzzle[index] !== 0) {
       return CellType.GIVEN_NUMBER;
     }
-    if (userSolution[index] !== '') {
+    if (userSolution[index] !== 0) {
       return CellType.USER_NUMBER;
     }
     if (candidates[index].length > 0) {
@@ -141,9 +164,9 @@ const SudokuGenerator = () => {
         label={isInBlueprintMode ? "Blueprint" : "Editing"}
       />
       <div className="one-click-bar">
-        { Array.from({ length: GRID_SIZE }).map((_, index) => (
+        {Array.from({length: SUDOKU_GRID_SIZE}).map((_, index) => (
           <button
-            key={index}
+            key={index + 1}
             className={oneClickNumber === index + 1 ? 'selected-number' : ''}
             onClick={() => handleOneClickNumber(index)}
           >
@@ -151,52 +174,27 @@ const SudokuGenerator = () => {
           </button>
         ))}
       </div>
-      <div className="play-table">
-        <table>
-          <tbody>
-          {[...Array(GRID_SIZE)].map((_, indexY) => (
-            <tr key={indexY}>
-              {[...Array(GRID_SIZE)].map((_, indexX) => {
-                const index = GRID_SIZE * indexY + indexX;
-                const numberInPuzzle = puzzle[index];
+      <div className="sudoku-grid">
+        {[...Array(SUDOKU_GRID_SIZE)].map((_, indexY) =>
+          [...Array(SUDOKU_GRID_SIZE)].map((_, indexX) => {
+            const index = SUDOKU_GRID_SIZE * indexY + indexX;
 
-                return (
-                  <td
-                    key={`${indexX}-${indexY}`}
-                    className={"cell " + (errorCellIndexes.includes(index) ? ' error' : '') + (indexY % 3 === 2 ? ' cell-with-border' : '')}
-                  >
-                    {getCellType(index) === CellType.GIVEN_NUMBER && (
-                      <div
-                        className={CellType.GIVEN_NUMBER}
-                      >
-                        {numberInPuzzle}
-                      </div>
-                    )}
-                    {getCellType(index) !== CellType.GIVEN_NUMBER && (
-                      <div tabIndex={0} style={{
-                        width: '100%',
-                        height: '100%',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                      }}
-                           onClick={(e) => handleClick(index, e)}
-                      >
-                        {getCellType(index) === CellType.USER_NUMBER && (
-                          userSolution[index]
-                        )}
-                        {getCellType(index) === CellType.CANDIDATES && (
-                          <Candidates candidateList={candidates[index]}/>
-                        )}
-                      </div>
-                    )}
-                  </td>
-                )
-              })}
-            </tr>
-          ))}
-          </tbody>
-        </table>
+            return (
+              <div
+                key={`${indexX}-${indexY}`}
+                className={"cell " + (indexY % 3 === 2 ? ' cell-with-border' : '')}
+              >
+                <BoardCell
+                  type={getCellType(index)}
+                  userSolution={userSolution[index]}
+                  candidates={candidates[index]}
+                  numberInPuzzle={puzzle[index]}
+                  handleClick={handleClick(index)}
+                  invalid={errorCellIndexes.includes(index)}
+                />
+              </div>
+            )
+          }))}
       </div>
       <button onClick={fillCandidates}>Fill empty cells</button>
       <button onClick={generatePuzzle}>Generate new puzzle</button>

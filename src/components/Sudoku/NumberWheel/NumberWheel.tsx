@@ -2,7 +2,7 @@ import React, {useEffect, useRef} from "react";
 import "./NumberWheel.css";
 
 interface NumberWheelProps extends NumberWheelInputProps {
-  onSelect: (num: number | '', index: number) => void;
+  onSelect: (num: number, index: number) => void;
   onClose: () => void;
 }
 
@@ -47,7 +47,7 @@ const NumberWheel: React.FC<NumberWheelProps> = ({ n, x, y, index, onSelect, onC
         const posX = radius * Math.cos(angle);
         const posY = radius * Math.sin(angle);
 
-        const value = i + 1 < n ? i + 1 : '';
+        const value = i + 1 < n ? i + 1 : 0;
 
         return (
           <button
@@ -59,7 +59,7 @@ const NumberWheel: React.FC<NumberWheelProps> = ({ n, x, y, index, onSelect, onC
             }}
             onClick={() => onSelect(value, index)}
           >
-            { value }
+            { value === 0 ? '' : value }
           </button>
         );
       })}

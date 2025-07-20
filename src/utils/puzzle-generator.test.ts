@@ -1,9 +1,8 @@
 import {describe, expect, it} from "vitest";
 import {
-  verifyEligibility,
   generateBlock,
-  integrateBlockToBoard,
-  generateBoard, generateCandidates
+  insertBlockIntoBoard,
+  generateBoard, generateCandidatesStrategy
 } from "./puzzle-generator.ts";
 
 const PUZZLE_4_9: (number | '')[] = [
@@ -56,31 +55,10 @@ describe('Puzzle Generator', () => {
     const block = [8, 7, 5, 4, 1, 2, 9, 6, 3];
 
     // WHEN
-    integrateBlockToBoard(PUZZLE_4_9, blockIndex, block);
+    insertBlockIntoBoard(PUZZLE_4_9, blockIndex, block);
 
     // THEN
     expect(PUZZLE_4_9).toStrictEqual(PUZZLE_5_9);
-  });
-
-  describe('verifyValidity', () => {
-    [
-      ['column', 2, 33, ['column']],
-      ['row', 9, 33, ['row']],
-      ['row and column', 3, 30, ['column', 'row'] ],
-      ['block', 1, 50, ['block']]
-    ].forEach(testCase => {
-      it(`should return ${testCase[0]} when ${testCase[0]} violated`, () => {
-        // GIVEN
-        const board = [...PUZZLE_5_9];
-        board[50] = '';
-
-        // WHEN
-        const result = verifyEligibility(board, Number(testCase[1]), Number(testCase[2]));
-
-        // THEN
-        expect(result).toStrictEqual(testCase[3]);
-      });
-    })
   });
 
   describe('generateBlock', () => {
@@ -138,7 +116,7 @@ describe('Puzzle Generator', () => {
 
     it('should generate a solution with 81 elements', () => {
       // WHEN
-      const solution = generateBoard(generateCandidates);
+      const solution = generateBoard(generateCandidatesStrategy);
       expect(solution.length).toBe(81);
       // THEN
       solution.forEach(num => {
@@ -148,7 +126,7 @@ describe('Puzzle Generator', () => {
     });
 
     it('should generate a solution where each row contains numbers 1-9 without repetition', () => {
-      const solution = generateBoard(generateCandidates);
+      const solution = generateBoard(generateCandidatesStrategy);
       for (let row = 0; row < 9; row++) {
         const rowValues = solution.slice(row * 9, (row + 1) * 9);
         expect(new Set(rowValues).size).toBe(9);
@@ -156,7 +134,7 @@ describe('Puzzle Generator', () => {
     });
 
     it('should generate a solution where each column contains numbers 1-9 without repetition', () => {
-      const solution = generateBoard(generateCandidates);
+      const solution = generateBoard(generateCandidatesStrategy);
       for (let col = 0; col < 9; col++) {
         const colValues = [];
         for (let row = 0; row < 9; row++) {
@@ -167,7 +145,7 @@ describe('Puzzle Generator', () => {
     });
 
     it('should generate a solution where each 3x3 box contains numbers 1-9 without repetition', () => {
-      const solution = generateBoard(generateCandidates);
+      const solution = generateBoard(generateCandidatesStrategy);
       for (let boxRow = 0; boxRow < 3; boxRow++) {
         for (let boxCol = 0; boxCol < 3; boxCol++) {
           const boxValues = [];
