@@ -2,11 +2,11 @@ import "./Sudoku.css";
 import React, {useState} from "react";
 import {generateSudoku} from "@utils/puzzle-generator.ts";
 import NumberWheel, {NumberWheelInputProps} from "./NumberWheel/NumberWheel.tsx";
-import {Candidates} from "./Candidates/Candidates.tsx";
 import {FormControlLabel, Switch} from "@mui/material";
 import {getSudokuRulesViolations, SudokuRuleViolation} from "@utils/sudoku-validity-check.ts";
 import {SUDOKU_BOARD_SIZE, SUDOKU_GRID_SIZE} from "@utils/sudoku.constants.ts";
 import {CellType} from "./BoardCell/CellType.ts";
+import BoardCell from "./BoardCell/BoardCell.tsx";
 
 
 const SudokuGenerator = () => {
@@ -159,38 +159,20 @@ const SudokuGenerator = () => {
             <tr key={indexY}>
               {[...Array(SUDOKU_GRID_SIZE)].map((_, indexX) => {
                 const index = SUDOKU_GRID_SIZE * indexY + indexX;
-                const numberInPuzzle = puzzle[index];
 
                 return (
                   <td
                     key={`${indexX}-${indexY}`}
                     className={"cell " + (errorCellIndexes.includes(index) ? ' error' : '') + (indexY % 3 === 2 ? ' cell-with-border' : '')}
                   >
-                    {getCellType(index) === CellType.GIVEN_NUMBER && (
-                      <div
-                        className={CellType.GIVEN_NUMBER}
-                      >
-                        {numberInPuzzle}
-                      </div>
-                    )}
-                    {getCellType(index) !== CellType.GIVEN_NUMBER && (
-                      <div tabIndex={0} style={{
-                        width: '100%',
-                        height: '100%',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                      }}
-                           onClick={(e) => handleClick(index, e)}
-                      >
-                        {getCellType(index) === CellType.USER_NUMBER && (
-                          userSolution[index]
-                        )}
-                        {getCellType(index) === CellType.CANDIDATES && (
-                          <Candidates candidateList={candidates[index]}/>
-                        )}
-                      </div>
-                    )}
+                   <BoardCell
+                      type={getCellType(index)}
+                      userSolution={userSolution[index]}
+                      candidates={candidates[index]}
+                      numberInPuzzle={puzzle[index]}
+                      handleClick={handleClick}
+                      index={index}
+                    />
                   </td>
                 )
               })}
