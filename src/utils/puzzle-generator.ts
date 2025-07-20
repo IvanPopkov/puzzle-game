@@ -5,6 +5,14 @@ import {solveSudoku} from "./sudoku-solver.ts";
 const BLOCK_SIZE = 3;
 const BOARD_SIZE_IN_BLOCKS = 3;
 
+export enum SudokuDifficulty {
+  EASY = 'easy',
+  MEDIUM = 'medium',
+  HARD = 'hard',
+  EXPERT = 'expert'
+}
+
+type IndexRange = { left: number, right: number };
 
 export const generateCandidatesStrategy = () => {
   return [...Array(SUDOKU_GRID_SIZE).keys()]
@@ -74,20 +82,40 @@ export const generateBoard = (generateCandidates: () => number[]) => {
 };
 
 const generatePuzzle = (solution: number[]) => {
-  const puzzle: number[] = [...solution];
-  const shuffledIndexes = [...Array(solution.length).keys()].sort(() => Math.random() - 0.5);
+  const difficulty = SudokuDifficulty.EXPERT;
+  let puzzle: number[] = [];
 
-  for (const indexToRemove of shuffledIndexes) {
-    const valueToRemove = puzzle[indexToRemove];
-    puzzle[indexToRemove] = 0;
+  let stopCondition = false;
 
-    if (solveSudoku(puzzle).length !== 1) {
-      puzzle[indexToRemove] = valueToRemove;
-      break;
+  while (!stopCondition) {
+    let removedIndexesCount = 0;
+
+    puzzle = [...solution];
+    const shuffledIndexes = [...Array(solution.length).keys()].sort(() => Math.random() - 0.5);
+
+    for (const indexToRemove of shuffledIndexes) {
+      const valueToRemove = puzzle[indexToRemove];
+      puzzle[indexToRemove] = 0;
+      removedIndexesCount++;
+
+      if (solveSudoku(puzzle).length !== 1) {
+        puzzle[indexToRemove] = valueToRemove;
+        if (isDifficultyCorrectForPuzzle(difficulty, removedIndexesCount)) {
+          stopCondition = true;
+        }
+
+        break;
+      }
     }
   }
+
   return puzzle;
 };
+
+const isDifficultyCorrectForPuzzle = (difficulty: SudokuDifficulty, removedIndexesNumber: number): boolean => {
+  const removedIndexesInterval = getRemovedIndexesIntervalFromDifficulty(difficulty);
+  return removedIndexesNumber >= removedIndexesInterval.left && removedIndexesNumber <= removedIndexesInterval.right;
+}
 
 export const generateSudoku = () => {
   const solution = generateBoard(generateCandidatesStrategy)
@@ -103,3 +131,16 @@ const validateSudoku = (puzzle: (number | '')[], candidate: number, index: numbe
 
   return isSudokuValid(filteredBoard);
 };
+
+const getRemovedIndexesIntervalFromDifficulty = (difficulty: SudokuDifficulty): IndexRange => {
+  switch (difficulty) {
+    case SudokuDifficulty.EASY:
+      return { left: 1, right: 25 };
+    case SudokuDifficulty.MEDIUM:
+      return { left: 26, right: 35 };
+    case SudokuDifficulty.HARD:
+      return { left: 36, right: 48 };
+    case SudokuDifficulty.EXPERT:
+      return { left: 49, right: 63 };
+  }
+}
