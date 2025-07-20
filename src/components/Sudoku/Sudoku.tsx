@@ -34,12 +34,14 @@ const SudokuGenerator = () => {
     setOneClickNumber(null);
   };
 
-  const handleClick = (index: number, e: React.MouseEvent<HTMLDivElement>) => {
-    if (oneClickNumber !== null) {
-      handleSelect(oneClickNumber, index);
-    } else {
-      const {clientX, clientY} = e;
-      setWheel({x: clientX, y: clientY, index, n: SUDOKU_GRID_SIZE + 1});
+  const handleClick = (index: number) => {
+    return (e: React.MouseEvent<HTMLDivElement>) => {
+      if (oneClickNumber !== null) {
+        handleSelect(oneClickNumber, index);
+      } else {
+        const {clientX, clientY} = e;
+        setWheel({x: clientX, y: clientY, index, n: SUDOKU_GRID_SIZE + 1});
+      }
     }
   };
 
@@ -183,15 +185,15 @@ const SudokuGenerator = () => {
                 return (
                   <td
                     key={`${indexX}-${indexY}`}
-                    className={"cell " + (errorCellIndexes.includes(index) ? ' error' : '') + (indexY % 3 === 2 ? ' cell-with-border' : '')}
+                    className={"cell " + (indexY % 3 === 2 ? ' cell-with-border' : '')}
                   >
                    <BoardCell
                       type={getCellType(index)}
                       userSolution={userSolution[index]}
                       candidates={candidates[index]}
                       numberInPuzzle={puzzle[index]}
-                      handleClick={handleClick}
-                      index={index}
+                      handleClick={handleClick(index)}
+                      error={errorCellIndexes.includes(index)}
                     />
                   </td>
                 )

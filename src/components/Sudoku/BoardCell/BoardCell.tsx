@@ -1,3 +1,4 @@
+import "./BoardCell.css";
 import React from "react";
 import {Candidates} from "../Candidates/Candidates.tsx";
 import {CellType} from "./CellType.ts";
@@ -7,14 +8,14 @@ interface BoardCellProps {
   userSolution: number;
   candidates: number[];
   numberInPuzzle: number;
-  handleClick: (index: number, e: React.MouseEvent<HTMLDivElement>) => void;
-  index: number;
+  handleClick: (e: React.MouseEvent<HTMLDivElement>) => void;
+  error?: boolean;
 }
 
-const BoardCell: React.FC<BoardCellProps> = ({ type, userSolution, candidates, numberInPuzzle, handleClick, index }) => {
+const BoardCell: React.FC<BoardCellProps> = ({ type, userSolution, candidates, numberInPuzzle, handleClick, error }) => {
 
   return (
-    <>
+    <div className={'board-cell ' + (error ? 'error' : '')}>
       {type === CellType.GIVEN_NUMBER && (
         <div
           className={CellType.GIVEN_NUMBER}
@@ -30,7 +31,7 @@ const BoardCell: React.FC<BoardCellProps> = ({ type, userSolution, candidates, n
           alignItems: 'center',
           justifyContent: 'center'
         }}
-             onClick={(e) => handleClick(index, e)}
+             onClick={handleClick}
         >
           {type === CellType.USER_NUMBER && (
             userSolution
@@ -40,7 +41,7 @@ const BoardCell: React.FC<BoardCellProps> = ({ type, userSolution, candidates, n
           )}
         </div>
       )}
-    </>
+    </div>
   );
 }
 

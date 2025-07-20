@@ -38,10 +38,6 @@
         cursor: pointer;
       }
 
-      &.error {
-        background-color: pink;
-      }
-
       &.cell-with-border {
         border-bottom: 1px solid black;
       }
