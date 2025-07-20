@@ -16,9 +16,9 @@ enum CellType {
 
 const SudokuGenerator = () => {
 
-  const [puzzle, setPuzzle] = useState<(number | '')[]>([]);
+  const [puzzle, setPuzzle] = useState<number[]>([]);
   const [candidates, setCandidates] = useState<number[][]>(Array.from({length: SUDOKU_BOARD_SIZE}, () => []));
-  const [userSolution, setUserSolution] = useState<(number | '')[]>(Array(SUDOKU_BOARD_SIZE).fill(''));
+  const [userSolution, setUserSolution] = useState<number[]>(Array(SUDOKU_BOARD_SIZE).fill(0));
   const [errorCellIndexes, setErrorCellIndexes] = useState<number[]>([]);
   const [isInBlueprintMode, setIsInBlueprintMode] = useState<boolean>(false);
   const [oneClickNumber, setOneClickNumber] = useState<number | null>(null);
@@ -30,11 +30,10 @@ const SudokuGenerator = () => {
     clearInput();
     const {puzzle} = generateSudoku();
     setPuzzle(puzzle);
-
   };
 
   const clearInput = () => {
-    setUserSolution(Array(SUDOKU_BOARD_SIZE).fill(''));
+    setUserSolution(Array(SUDOKU_BOARD_SIZE).fill(0));
     setCandidates(Array.from({length: SUDOKU_BOARD_SIZE}, () => []));
     setErrorCellIndexes([]);
     setOneClickNumber(null);
@@ -49,15 +48,14 @@ const SudokuGenerator = () => {
     }
   };
 
-  const getViolationsForCandidate = (puzzle: (number | '')[], candidate: number, index: number): SudokuRuleViolation[] => {
+  const getViolationsForCandidate = (puzzle: number[], candidate: number, index: number): SudokuRuleViolation[] => {
     const boardToVerify = [...puzzle];
     boardToVerify[index] = candidate;
-    const filteredBoard = boardToVerify.map(el => el === '' ? 0 : el);
 
-    return getSudokuRulesViolations(filteredBoard);
+    return getSudokuRulesViolations(boardToVerify);
   };
 
-  const validateSolution = (puzzle: (number | '')[], num: number, index: number) => {
+  const validateSolution = (puzzle: number[], num: number, index: number) => {
     const violations = getViolationsForCandidate(puzzle, num, index);
     if (violations.length > 0) {
       const errorIndexes = [];
@@ -75,7 +73,7 @@ const SudokuGenerator = () => {
     }
   };
 
-  const handleCandidate = (num: number | '', index: number) => {
+  const handleCandidate = (num: number, index: number) => {
     if (num && candidates[index].includes(num)) {
       const numIndex = candidates[index].findIndex(value => value === num);
       candidates[index].splice(numIndex, 1);
@@ -84,20 +82,20 @@ const SudokuGenerator = () => {
     }
   };
 
-  const handleUserInput = (num: number | '', index: number) => {
+  const handleUserInput = (num: number, index: number) => {
     if (userSolution[index] === num) {
-      num = '';
+      num = 0;
     }
     userSolution[index] = num;
     setUserSolution(userSolution);
-    if (num !== '') {
+    if (num !== 0) {
       validateSolution(puzzle, num, index);
     } else {
       setErrorCellIndexes([]);
     }
   };
 
-  const handleSelect = (num: number | '', index: number) => {
+  const handleSelect = (num: number, index: number) => {
     closeWheel();
 
     if (isInBlueprintMode) {
@@ -120,7 +118,7 @@ const SudokuGenerator = () => {
     if (puzzle[index] !== 0) {
       return CellType.GIVEN_NUMBER;
     }
-    if (userSolution[index] !== '') {
+    if (userSolution[index] !== 0) {
       return CellType.USER_NUMBER;
     }
     if (candidates[index].length > 0) {
