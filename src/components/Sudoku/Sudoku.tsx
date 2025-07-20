@@ -52,7 +52,7 @@ const SudokuGenerator = () => {
     return getSudokuRulesViolations(boardToVerify);
   };
 
-  const getInvalidBlockIndexes = (index: number)=> {
+  const getInvalidBlockIndexes = (index: number) => {
     const blockRow = Math.floor(index / SUDOKU_GRID_SIZE / 3);
     const blockCol = Math.floor(index % SUDOKU_GRID_SIZE / 3);
 
@@ -164,9 +164,9 @@ const SudokuGenerator = () => {
         label={isInBlueprintMode ? "Blueprint" : "Editing"}
       />
       <div className="one-click-bar">
-        { Array.from({ length: SUDOKU_GRID_SIZE }).map((_, index) => (
+        {Array.from({length: SUDOKU_GRID_SIZE}).map((_, index) => (
           <button
-            key={index}
+            key={index + 1}
             className={oneClickNumber === index + 1 ? 'selected-number' : ''}
             onClick={() => handleOneClickNumber(index)}
           >
@@ -174,34 +174,27 @@ const SudokuGenerator = () => {
           </button>
         ))}
       </div>
-      <div className="play-table">
-        <table>
-          <tbody>
-          {[...Array(SUDOKU_GRID_SIZE)].map((_, indexY) => (
-            <tr key={indexY}>
-              {[...Array(SUDOKU_GRID_SIZE)].map((_, indexX) => {
-                const index = SUDOKU_GRID_SIZE * indexY + indexX;
+      <div className="sudoku-grid">
+        {[...Array(SUDOKU_GRID_SIZE)].map((_, indexY) =>
+          [...Array(SUDOKU_GRID_SIZE)].map((_, indexX) => {
+            const index = SUDOKU_GRID_SIZE * indexY + indexX;
 
-                return (
-                  <td
-                    key={`${indexX}-${indexY}`}
-                    className={"cell " + (indexY % 3 === 2 ? ' cell-with-border' : '')}
-                  >
-                   <BoardCell
-                      type={getCellType(index)}
-                      userSolution={userSolution[index]}
-                      candidates={candidates[index]}
-                      numberInPuzzle={puzzle[index]}
-                      handleClick={handleClick(index)}
-                      error={errorCellIndexes.includes(index)}
-                    />
-                  </td>
-                )
-              })}
-            </tr>
-          ))}
-          </tbody>
-        </table>
+            return (
+              <div
+                key={`${indexX}-${indexY}`}
+                className={"cell " + (indexY % 3 === 2 ? ' cell-with-border' : '')}
+              >
+                <BoardCell
+                  type={getCellType(index)}
+                  userSolution={userSolution[index]}
+                  candidates={candidates[index]}
+                  numberInPuzzle={puzzle[index]}
+                  handleClick={handleClick(index)}
+                  invalid={errorCellIndexes.includes(index)}
+                />
+              </div>
+            )
+          }))}
       </div>
       <button onClick={fillCandidates}>Fill empty cells</button>
       <button onClick={generatePuzzle}>Generate new puzzle</button>

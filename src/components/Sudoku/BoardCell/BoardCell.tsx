@@ -9,29 +9,22 @@ interface BoardCellProps {
   candidates: number[];
   numberInPuzzle: number;
   handleClick: (e: React.MouseEvent<HTMLDivElement>) => void;
-  error?: boolean;
+  invalid?: boolean;
 }
 
-const BoardCell: React.FC<BoardCellProps> = ({ type, userSolution, candidates, numberInPuzzle, handleClick, error }) => {
+const BoardCell: React.FC<BoardCellProps> = ({ type, userSolution, candidates, numberInPuzzle, handleClick, invalid }) => {
 
   return (
-    <div className={'board-cell ' + (error ? 'error' : '')}>
+    <div className={'board-cell ' + (invalid ? 'error' : '')}>
       {type === CellType.GIVEN_NUMBER && (
-        <div
-          className={CellType.GIVEN_NUMBER}
-        >
+        <div style={{ fontWeight: '600' }}>
           {numberInPuzzle}
         </div>
       )}
       {type !== CellType.GIVEN_NUMBER && (
-        <div tabIndex={0} style={{
-          width: '100%',
-          height: '100%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}
-             onClick={handleClick}
+        <div
+          className="user-input-cell"
+          onClick={handleClick}
         >
           {type === CellType.USER_NUMBER && (
             userSolution
