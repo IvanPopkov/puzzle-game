@@ -118,7 +118,7 @@ const SudokuGenerator = () => {
   };
 
   const getCellType = (index: number) => {
-    if (puzzle[index] !== '') {
+    if (puzzle[index] !== 0) {
       return CellType.GIVEN_NUMBER;
     }
     if (userSolution[index] !== '') {

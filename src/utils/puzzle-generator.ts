@@ -1,5 +1,6 @@
 import {isSudokuValid} from "./sudoku-validity-check";
 import {SUDOKU_GRID_SIZE} from "./sudoku.constants.ts";
+import {solveSudoku} from "./sudoku-solver.ts";
 
 const BLOCK_SIZE = 3;
 const BOARD_SIZE_IN_BLOCKS = 3;
@@ -72,33 +73,15 @@ export const generateBoard = (generateCandidates: () => number[]) => {
   return board;
 };
 
-const generatePropositions = (puzzle: (number | '')[], index: number) => {
-  return [...Array(SUDOKU_GRID_SIZE).keys()].map(val => val + 1).filter(val => validateSudoku(puzzle, val, index));
-}
-
-const isPuzzleSolvable = (puzzle: (number | '')[], removedIndexes: number[], indexToRemove: number) => {
-  let solvable = false;
-  for (const index of [...removedIndexes, indexToRemove]) {
-    const propositions = generatePropositions(puzzle, index);
-    if (propositions.length === 1) {
-      solvable = true;
-      break;
-    }
-  }
-  return solvable;
-}
-
 const generatePuzzle = (solution: number[]) => {
-  const removedIndexes: number[] = [];
-  const puzzle: (number | '')[] = [...solution];
+  const puzzle: number[] = [...solution];
   const shuffledIndexes = [...Array(solution.length).keys()].sort(() => Math.random() - 0.5);
 
   for (const indexToRemove of shuffledIndexes) {
     const valueToRemove = puzzle[indexToRemove];
-    removedIndexes.push(indexToRemove);
-    puzzle[indexToRemove] = '';
+    puzzle[indexToRemove] = 0;
 
-    if (!isPuzzleSolvable(puzzle, removedIndexes, indexToRemove)) {
+    if (solveSudoku(puzzle).length !== 1) {
       puzzle[indexToRemove] = valueToRemove;
       break;
     }
