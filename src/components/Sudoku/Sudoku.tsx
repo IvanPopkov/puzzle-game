@@ -1,10 +1,11 @@
 import "./Sudoku.css";
 import React, {useState} from "react";
-import {generateSudoku} from "../../utils/puzzle-generator.ts";
+import {generateSudoku} from "@utils/puzzle-generator.ts";
 import NumberWheel, {NumberWheelInputProps} from "./NumberWheel/NumberWheel.tsx";
 import {Candidates} from "./Candidates/Candidates.tsx";
 import {FormControlLabel, Switch} from "@mui/material";
-import {getSudokuRulesViolations, SudokuRuleViolation} from "../../utils/sudoku-validity-check.ts";
+import {getSudokuRulesViolations, SudokuRuleViolation} from "@utils/sudoku-validity-check.ts";
+import {SUDOKU_BOARD_SIZE, SUDOKU_GRID_SIZE} from "@utils/sudoku.constants.ts";
 
 enum CellType {
   GIVEN_NUMBER = 'given-number',
@@ -14,12 +15,10 @@ enum CellType {
 }
 
 const SudokuGenerator = () => {
-  const GRID_SIZE = 9;
-  const MAX_INDEX = GRID_SIZE ** 2;
 
   const [puzzle, setPuzzle] = useState<(number | '')[]>([]);
-  const [candidates, setCandidates] = useState<number[][]>(Array.from({length: MAX_INDEX}, () => []));
-  const [userSolution, setUserSolution] = useState<(number | '')[]>(Array(MAX_INDEX).fill(''));
+  const [candidates, setCandidates] = useState<number[][]>(Array.from({length: SUDOKU_BOARD_SIZE}, () => []));
+  const [userSolution, setUserSolution] = useState<(number | '')[]>(Array(SUDOKU_BOARD_SIZE).fill(''));
   const [errorCellIndexes, setErrorCellIndexes] = useState<number[]>([]);
   const [isInBlueprintMode, setIsInBlueprintMode] = useState<boolean>(false);
   const [oneClickNumber, setOneClickNumber] = useState<number | null>(null);
@@ -35,8 +34,8 @@ const SudokuGenerator = () => {
   };
 
   const clearInput = () => {
-    setUserSolution(Array(MAX_INDEX).fill(''));
-    setCandidates(Array.from({length: MAX_INDEX}, () => []));
+    setUserSolution(Array(SUDOKU_BOARD_SIZE).fill(''));
+    setCandidates(Array.from({length: SUDOKU_BOARD_SIZE}, () => []));
     setErrorCellIndexes([]);
     setOneClickNumber(null);
   };
@@ -46,7 +45,7 @@ const SudokuGenerator = () => {
       handleSelect(oneClickNumber, index);
     } else {
       const {clientX, clientY} = e;
-      setWheel({x: clientX, y: clientY, index, n: GRID_SIZE + 1});
+      setWheel({x: clientX, y: clientY, index, n: SUDOKU_GRID_SIZE + 1});
     }
   };
 
@@ -63,13 +62,13 @@ const SudokuGenerator = () => {
     if (violations.length > 0) {
       const errorIndexes = [];
       if (violations.includes(SudokuRuleViolation.COLUMN)) {
-        const x = index % GRID_SIZE;
-        const columnIndexes = [...Array(GRID_SIZE).keys()].map(row => x + GRID_SIZE * row);
+        const x = index % SUDOKU_GRID_SIZE;
+        const columnIndexes = [...Array(SUDOKU_GRID_SIZE).keys()].map(row => x + SUDOKU_GRID_SIZE * row);
         errorIndexes.push(...columnIndexes);
       }
       if (violations.includes(SudokuRuleViolation.ROW)) {
-        const y = Math.floor(index / GRID_SIZE);
-        const columnIndexes = [...Array(GRID_SIZE).keys()].map(column => column + GRID_SIZE * y);
+        const y = Math.floor(index / SUDOKU_GRID_SIZE);
+        const columnIndexes = [...Array(SUDOKU_GRID_SIZE).keys()].map(column => column + SUDOKU_GRID_SIZE * y);
         errorIndexes.push(...columnIndexes);
       }
       setErrorCellIndexes(errorIndexes);
@@ -110,7 +109,7 @@ const SudokuGenerator = () => {
 
   const fillCandidates = () => {
     setCandidates(
-      Array.from({length: MAX_INDEX}, () => [...Array(GRID_SIZE).keys()].map(val => val + 1)));
+      Array.from({length: SUDOKU_BOARD_SIZE}, () => [...Array(SUDOKU_GRID_SIZE).keys()].map(val => val + 1)));
   };
 
   const clearAll = () => {
@@ -150,7 +149,7 @@ const SudokuGenerator = () => {
         label={isInBlueprintMode ? "Blueprint" : "Editing"}
       />
       <div className="one-click-bar">
-        { Array.from({ length: GRID_SIZE }).map((_, index) => (
+        { Array.from({ length: SUDOKU_GRID_SIZE }).map((_, index) => (
           <button
             key={index}
             className={oneClickNumber === index + 1 ? 'selected-number' : ''}
@@ -163,10 +162,10 @@ const SudokuGenerator = () => {
       <div className="play-table">
         <table>
           <tbody>
-          {[...Array(GRID_SIZE)].map((_, indexY) => (
+          {[...Array(SUDOKU_GRID_SIZE)].map((_, indexY) => (
             <tr key={indexY}>
-              {[...Array(GRID_SIZE)].map((_, indexX) => {
-                const index = GRID_SIZE * indexY + indexX;
+              {[...Array(SUDOKU_GRID_SIZE)].map((_, indexX) => {
+                const index = SUDOKU_GRID_SIZE * indexY + indexX;
                 const numberInPuzzle = puzzle[index];
 
                 return (

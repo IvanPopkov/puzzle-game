@@ -35,7 +35,6 @@ export const generateBlock = (board: (number | '')[], blockIndex: number, candid
       candidate => validateSudoku(board, candidate, numberIndex)
     );
     if (eligibleCandidateIndex < 0) {
-      k = 0;
       return -1;
     }
 
