@@ -3,7 +3,7 @@ import NumberWheel from "./NumberWheel/NumberWheel.tsx";
 import {FormControlLabel, Switch} from "@mui/material";
 import {SUDOKU_BOARD_SIZE, SUDOKU_GRID_SIZE} from "@utils/sudoku.constants.ts";
 import BoardCell from "./BoardCell/BoardCell.tsx";
-import {useSudokuGame} from "../../hooks/useSudokuGame.ts";
+import {useSudokuGame} from "./hooks/useSudokuGame.ts";
 
 
 const SudokuGenerator = () => {
@@ -29,7 +29,7 @@ const SudokuGenerator = () => {
 
   return (
     <div className="container">
-      <p><a href="/">Back</a></p>
+      <p><a href="/public">Back</a></p>
       <p>This is a sudoku game</p>
       {wheel && <NumberWheel {...wheel} onSelect={handleSelect} onClose={closeWheel}/>}
       <FormControlLabel

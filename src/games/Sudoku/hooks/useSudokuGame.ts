@@ -1,8 +1,8 @@
 import React, {useState} from "react";
 import {SUDOKU_BOARD_SIZE, SUDOKU_GRID_SIZE} from "@utils/sudoku.constants.ts";
-import {NumberWheelInputProps} from "../components/Sudoku/NumberWheel/NumberWheel.tsx";
+import {NumberWheelInputProps} from "../NumberWheel/NumberWheel.tsx";
 import {getSudokuRulesViolations, SudokuRuleViolation} from "@utils/sudoku-validity-check.ts";
-import {CellType} from "../components/Sudoku/BoardCell/CellType.ts";
+import {CellType} from "../BoardCell/CellType.ts";
 import {generateSudoku} from "@utils/puzzle-generator.ts";
 
 

@@ -1,7 +1,7 @@
 import './App.css';
 import MainMenu from "./components/MainMenu/MainMenu.tsx";
 import {HashRouter, Route, Routes} from "react-router";
-import Sudoku from "./components/Sudoku/Sudoku.tsx";
+import Sudoku from "./games/Sudoku/Sudoku.tsx";
 
 
 function App() {
