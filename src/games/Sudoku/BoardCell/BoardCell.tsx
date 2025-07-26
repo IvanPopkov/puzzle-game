@@ -13,19 +13,17 @@ interface BoardCellProps {
 }
 
 const BoardCell: React.FC<BoardCellProps> = ({ type, userSolution, candidates, numberInPuzzle, handleClick, invalid }) => {
+  const buildClass = () => {
+    return 'board-cell' + (invalid ? ' error' : '') + (type === CellType.GIVEN_NUMBER ? ' given-number' : '');
+  };
 
   return (
-    <div className={'board-cell ' + (invalid ? 'error' : '')}>
+    <>
       {type === CellType.GIVEN_NUMBER && (
-        <div style={{ fontWeight: '600' }}>
-          {numberInPuzzle}
-        </div>
+        <div className={buildClass()}>{numberInPuzzle}</div>
       )}
       {type !== CellType.GIVEN_NUMBER && (
-        <div
-          className="user-input-cell"
-          onClick={handleClick}
-        >
+        <div className={buildClass()} onClick={handleClick}>
           {type === CellType.USER_NUMBER && (
             userSolution
           )}
@@ -34,7 +32,7 @@ const BoardCell: React.FC<BoardCellProps> = ({ type, userSolution, candidates, n
           )}
         </div>
       )}
-    </div>
+    </>
   );
 }
 

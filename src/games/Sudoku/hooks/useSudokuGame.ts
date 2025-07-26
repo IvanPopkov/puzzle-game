@@ -1,16 +1,12 @@
-import "./Sudoku.css";
 import React, {useState} from "react";
-import {generateSudoku} from "@utils/puzzle-generator.ts";
-import NumberWheel, {NumberWheelInputProps} from "./NumberWheel/NumberWheel.tsx";
-import {FormControlLabel, Switch} from "@mui/material";
-import {getSudokuRulesViolations, SudokuRuleViolation} from "@utils/sudoku-validity-check.ts";
 import {SUDOKU_BOARD_SIZE, SUDOKU_GRID_SIZE} from "@utils/sudoku.constants.ts";
-import {CellType} from "./BoardCell/CellType.ts";
-import BoardCell from "./BoardCell/BoardCell.tsx";
+import {NumberWheelInputProps} from "../NumberWheel/NumberWheel.tsx";
+import {getSudokuRulesViolations, SudokuRuleViolation} from "@utils/sudoku-validity-check.ts";
+import {CellType} from "../BoardCell/CellType.ts";
+import {generateSudoku} from "@utils/puzzle-generator.ts";
 
 
-const SudokuGenerator = () => {
-
+export const useSudokuGame = () => {
   const [puzzle, setPuzzle] = useState<number[]>([]);
   const [candidates, setCandidates] = useState<number[][]>(Array.from({length: SUDOKU_BOARD_SIZE}, () => []));
   const [userSolution, setUserSolution] = useState<number[]>(Array(SUDOKU_BOARD_SIZE).fill(0));
@@ -21,28 +17,11 @@ const SudokuGenerator = () => {
   const [wheel, setWheel] = useState<NumberWheelInputProps | null>(null);
   const closeWheel = () => setWheel(null);
 
-  const generatePuzzle = () => {
-    clearInput();
-    const {puzzle} = generateSudoku();
-    setPuzzle(puzzle);
-  };
-
   const clearInput = () => {
     setUserSolution(Array(SUDOKU_BOARD_SIZE).fill(0));
     setCandidates(Array.from({length: SUDOKU_BOARD_SIZE}, () => []));
     setErrorCellIndexes([]);
     setOneClickNumber(null);
-  };
-
-  const handleClick = (index: number) => {
-    return (e: React.MouseEvent<HTMLDivElement>) => {
-      if (oneClickNumber !== null) {
-        handleSelect(oneClickNumber, index);
-      } else {
-        const {clientX, clientY} = e;
-        setWheel({x: clientX, y: clientY, index, n: SUDOKU_GRID_SIZE + 1});
-      }
-    }
   };
 
   const getViolationsForCandidate = (puzzle: number[], candidate: number, index: number): SudokuRuleViolation[] => {
@@ -51,22 +30,6 @@ const SudokuGenerator = () => {
 
     return getSudokuRulesViolations(boardToVerify);
   };
-
-  const getInvalidBlockIndexes = (index: number) => {
-    const blockRow = Math.floor(index / SUDOKU_GRID_SIZE / 3);
-    const blockCol = Math.floor(index % SUDOKU_GRID_SIZE / 3);
-
-    const blockIndexes: number[] = [];
-
-    for (let rowOffset = 0; rowOffset < 3; rowOffset++) {
-      for (let colOffset = 0; colOffset < 3; colOffset++) {
-        const row = blockRow * 3 + rowOffset;
-        const col = blockCol * 3 + colOffset;
-        blockIndexes.push(row * 9 + col);
-      }
-    }
-    return blockIndexes;
-  }
 
   const validateSolution = (puzzle: number[], num: number, index: number) => {
     const violations = getViolationsForCandidate(puzzle, num, index);
@@ -122,10 +85,16 @@ const SudokuGenerator = () => {
     }
   };
 
-  const fillCandidates = () => {
-    setCandidates(
-      Array.from({length: SUDOKU_BOARD_SIZE}, () => [...Array(SUDOKU_GRID_SIZE).keys()].map(val => val + 1)));
-  };
+  const handleClick = (index: number) => {
+    return (e: React.MouseEvent<HTMLDivElement>) => {
+      if (oneClickNumber !== null) {
+        handleSelect(oneClickNumber, index);
+      } else {
+        const { clientX, clientY } = e;
+        setWheel({ x: clientX, y: clientY, index, n: SUDOKU_GRID_SIZE + 1 });
+      }
+    };
+  }
 
   const clearAll = () => {
     clearInput();
@@ -144,63 +113,55 @@ const SudokuGenerator = () => {
     return CellType.EMPTY;
   };
 
+  const fillCandidates = () => {
+    setCandidates(
+      Array.from({length: SUDOKU_BOARD_SIZE}, () => [...Array(SUDOKU_GRID_SIZE).keys()].map(val => val + 1)));
+  };
+
   const handleOneClickNumber = (index: number) => {
     const newNumber = index + 1;
     setOneClickNumber(oneClickNumber === newNumber ? null : newNumber);
   }
 
-  return (
-    <div className="container">
-      <p><a href="/">Back</a></p>
-      <p>This is a sudoku game</p>
-      {wheel && <NumberWheel {...wheel} onSelect={handleSelect} onClose={closeWheel}/>}
-      <FormControlLabel
-        control={
-          <Switch
-            checked={isInBlueprintMode}
-            onChange={(e) => setIsInBlueprintMode(e.target.checked)}
-          />
-        }
-        label={isInBlueprintMode ? "Blueprint" : "Editing"}
-      />
-      <div className="one-click-bar">
-        {Array.from({length: SUDOKU_GRID_SIZE}).map((_, index) => (
-          <button
-            key={index + 1}
-            className={oneClickNumber === index + 1 ? 'selected-number' : ''}
-            onClick={() => handleOneClickNumber(index)}
-          >
-            {index + 1}
-          </button>
-        ))}
-      </div>
-      <div className="sudoku-grid">
-        {[...Array(SUDOKU_GRID_SIZE)].map((_, indexY) =>
-          [...Array(SUDOKU_GRID_SIZE)].map((_, indexX) => {
-            const index = SUDOKU_GRID_SIZE * indexY + indexX;
+  const generatePuzzle = () => {
+    clearInput();
+    const { puzzle } = generateSudoku();
+    setPuzzle(puzzle);
+  };
 
-            return (
-              <div
-                key={`${indexX}-${indexY}`}
-                className={"cell " + (indexY % 3 === 2 ? ' cell-with-border' : '')}
-              >
-                <BoardCell
-                  type={getCellType(index)}
-                  userSolution={userSolution[index]}
-                  candidates={candidates[index]}
-                  numberInPuzzle={puzzle[index]}
-                  handleClick={handleClick(index)}
-                  invalid={errorCellIndexes.includes(index)}
-                />
-              </div>
-            )
-          }))}
-      </div>
-      <button onClick={fillCandidates}>Fill empty cells</button>
-      <button onClick={generatePuzzle}>Generate new puzzle</button>
-      <button onClick={clearAll}>Clear</button>
-    </div>
-  );
-};
+  const getInvalidBlockIndexes = (index: number) => {
+    const blockRow = Math.floor(index / SUDOKU_GRID_SIZE / 3);
+    const blockCol = Math.floor(index % SUDOKU_GRID_SIZE / 3);
 
-export default SudokuGenerator;
+    const blockIndexes: number[] = [];
+
+    for (let rowOffset = 0; rowOffset < 3; rowOffset++) {
+      for (let colOffset = 0; colOffset < 3; colOffset++) {
+        const row = blockRow * 3 + rowOffset;
+        const col = blockCol * 3 + colOffset;
+        blockIndexes.push(row * 9 + col);
+      }
+    }
+    return blockIndexes;
+  }
+
+
+  return {
+    puzzle,
+    userSolution,
+    candidates,
+    errorCellIndexes,
+    isInBlueprintMode,
+    oneClickNumber,
+    wheel,
+    handleClick,
+    handleSelect,
+    handleOneClickNumber,
+    generatePuzzle,
+    fillCandidates,
+    clearAll,
+    getCellType,
+    closeWheel,
+    setIsInBlueprintMode,
+  };
+}
