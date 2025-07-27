@@ -29,7 +29,7 @@ const SudokuGenerator = () => {
 
   return (
     <div className="container">
-      <p><a href="/public">Back</a></p>
+      <p><a href="/">Back</a></p>
       <p>This is a sudoku game</p>
       {wheel && <NumberWheel {...wheel} onSelect={handleSelect} onClose={closeWheel}/>}
       <FormControlLabel
