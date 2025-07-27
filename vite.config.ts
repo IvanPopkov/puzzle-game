@@ -10,6 +10,9 @@ export default defineConfig({
   resolve: {
     alias: {
       '@utils': '/src/utils',
+      '@games': '/src/games',
+      '@components': '/src/components',
+      '@hooks': '/src/hooks',
     }
   }
 })
