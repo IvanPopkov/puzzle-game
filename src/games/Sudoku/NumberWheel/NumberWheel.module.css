@@ -1,5 +1,5 @@
 
-.number-wheel {
+.numberWheel {
   z-index: 1;
   position: absolute;
   transform: translate(-50%, -50%);
@@ -9,15 +9,14 @@
   align-items: center;
   pointer-events: none;
   background-image: radial-gradient(rgba(180, 255, 233, 1) 0%, transparent 70%);
+}
 
-
-  .number {
-    position: absolute;
-    transform: translate(-50%, -50%);
-    pointer-events: auto;
-    border-radius: 50%;
-    width: 32px;
-    height: 32px;
-    padding: 0;
-  }
+.number {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  padding: 0;
 }

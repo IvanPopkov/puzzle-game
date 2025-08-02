@@ -1,4 +1,4 @@
-import "./Sudoku.css";
+import styles from "./Sudoku.module.css";
 import NumberWheel from "./NumberWheel/NumberWheel.tsx";
 import {FormControlLabel, Switch} from "@mui/material";
 import {SUDOKU_BOARD_SIZE, SUDOKU_GRID_SIZE} from "@utils/sudoku.constants.ts";
@@ -28,7 +28,7 @@ const SudokuGenerator = () => {
 
 
   return (
-    <div className="container">
+    <div className={styles.container}>
       <p><a href="/">Back</a></p>
       <p>This is a sudoku game</p>
       {wheel && <NumberWheel {...wheel} onSelect={handleSelect} onClose={closeWheel}/>}
@@ -41,18 +41,18 @@ const SudokuGenerator = () => {
         }
         label={isInBlueprintMode ? "Blueprint" : "Editing"}
       />
-      <div className="one-click-bar">
+      <div className={styles.oneClickBar}>
         {Array.from({length: SUDOKU_GRID_SIZE}).map((_, index) => (
           <button
             key={index + 1}
-            className={oneClickNumber === index + 1 ? 'selected-number' : ''}
+            className={oneClickNumber === index + 1 ? styles.selectedNumber : ''}
             onClick={() => handleOneClickNumber(index)}
           >
             {index + 1}
           </button>
         ))}
       </div>
-      <div className="sudoku-grid">
+      <div className={styles.sudokuGrid}>
         {[...Array(SUDOKU_BOARD_SIZE)].map((_, index) => (
           <BoardCell
             key={`${index}-${index}`}
