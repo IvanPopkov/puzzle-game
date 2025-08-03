@@ -4,6 +4,7 @@ import {FormControlLabel, Switch} from "@mui/material";
 import {SUDOKU_BOARD_SIZE, SUDOKU_GRID_SIZE} from "@utils/sudoku.constants.ts";
 import BoardCell from "./BoardCell/BoardCell.tsx";
 import {useSudokuGame} from "./hooks/useSudokuGame.ts";
+import Spinner from "@components/LoadingSpinner/LoadingSpinner.tsx";
 
 
 const SudokuGenerator = () => {
@@ -23,7 +24,8 @@ const SudokuGenerator = () => {
     errorCellIndexes,
     fillCandidates,
     generatePuzzle,
-    clearAll
+    clearAll,
+    isGenerating
   } = useSudokuGame();
 
 
@@ -52,18 +54,23 @@ const SudokuGenerator = () => {
           </button>
         ))}
       </div>
-      <div className={styles.sudokuGrid}>
-        {[...Array(SUDOKU_BOARD_SIZE)].map((_, index) => (
-          <BoardCell
-            key={`${index}-${index}`}
-            type={getCellType(index)}
-            userSolution={userSolution[index]}
-            candidates={candidates[index]}
-            numberInPuzzle={puzzle[index]}
-            handleClick={handleClick(index)}
-            invalid={errorCellIndexes.includes(index)}
-          />
-        ))}
+      <div className={styles.gameBoard}>
+        {isGenerating && (<Spinner/>)}
+        {!isGenerating && (
+          <div className={styles.sudokuGrid}>
+            {[...Array(SUDOKU_BOARD_SIZE)].map((_, index) => (
+              <BoardCell
+                key={`${index}-${index}`}
+                type={getCellType(index)}
+                userSolution={userSolution[index]}
+                candidates={candidates[index]}
+                numberInPuzzle={puzzle[index]}
+                handleClick={handleClick(index)}
+                invalid={errorCellIndexes.includes(index)}
+              />
+            ))}
+          </div>
+        )}
       </div>
       <button onClick={fillCandidates}>Fill empty cells</button>
       <button onClick={generatePuzzle}>Generate new puzzle</button>

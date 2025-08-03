@@ -118,9 +118,7 @@ const isDifficultyCorrectForPuzzle = (difficulty: SudokuDifficulty, removedIndex
 
 export const generateSudoku = () => {
   const solution = generateBoard(generateCandidatesStrategy)
-  const puzzle = generatePuzzle(solution);
-
-  return { puzzle };
+  return generatePuzzle(solution);
 };
 
 const validateSudoku = (puzzle: (number | '')[], candidate: number, index: number): boolean => {

@@ -3,7 +3,7 @@ import {SUDOKU_BOARD_SIZE, SUDOKU_GRID_SIZE} from "@utils/sudoku.constants.ts";
 import {NumberWheelInputProps} from "../NumberWheel/NumberWheel.tsx";
 import {getSudokuRulesViolations, SudokuRuleViolation} from "@utils/sudoku-validity-check.ts";
 import {CellType} from "../BoardCell/CellType.ts";
-import {generateSudoku} from "@utils/puzzle-generator.ts";
+import {generateSudokuInWorker} from "@services/puzzle-worker-client.ts";
 
 
 export const useSudokuGame = () => {
@@ -13,6 +13,7 @@ export const useSudokuGame = () => {
   const [errorCellIndexes, setErrorCellIndexes] = useState<number[]>([]);
   const [isInBlueprintMode, setIsInBlueprintMode] = useState<boolean>(false);
   const [oneClickNumber, setOneClickNumber] = useState<number | null>(null);
+  const [isGenerating, setIsGenerating] = useState<boolean>(false);
 
   const [wheel, setWheel] = useState<NumberWheelInputProps | null>(null);
   const closeWheel = () => setWheel(null);
@@ -123,10 +124,12 @@ export const useSudokuGame = () => {
     setOneClickNumber(oneClickNumber === newNumber ? null : newNumber);
   }
 
-  const generatePuzzle = () => {
+  const generatePuzzle = async () => {
+    setIsGenerating(true);
     clearInput();
-    const { puzzle } = generateSudoku();
-    setPuzzle(puzzle);
+    const res = await generateSudokuInWorker();
+    setPuzzle(res.puzzle);
+    setIsGenerating(false);
   };
 
   const getInvalidBlockIndexes = (index: number) => {
@@ -163,5 +166,6 @@ export const useSudokuGame = () => {
     getCellType,
     closeWheel,
     setIsInBlueprintMode,
+    isGenerating
   };
 }

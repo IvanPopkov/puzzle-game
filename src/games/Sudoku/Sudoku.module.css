@@ -22,3 +22,10 @@
   grid-template-rows: repeat(9, 45px);
   gap: 0;
 }
+
+.gameBoard {
+  width: 413px;
+  height: 413px;
+  display: flex;
+  align-items: center;
+}

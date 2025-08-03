@@ -13,6 +13,7 @@ export default defineConfig({
       '@games': '/src/games',
       '@components': '/src/components',
       '@hooks': '/src/hooks',
+      '@services': '/src/services',
     }
   }
 })
