@@ -1,5 +1,5 @@
 import React, {useEffect, useRef} from "react";
-import "./NumberWheel.css";
+import styles from "./NumberWheel.module.css";
 
 interface NumberWheelProps extends NumberWheelInputProps {
   onSelect: (num: number, index: number) => void;
@@ -34,7 +34,7 @@ const NumberWheel: React.FC<NumberWheelProps> = ({ n, x, y, index, onSelect, onC
   return (
     <div
       ref={wheelRef}
-      className="number-wheel"
+      className={styles.numberWheel}
       style={{
         top: y,
         left: x,
@@ -52,7 +52,7 @@ const NumberWheel: React.FC<NumberWheelProps> = ({ n, x, y, index, onSelect, onC
         return (
           <button
             key={value}
-            className="number"
+            className={styles.number}
             style={{
               top: `calc(50% + ${posY}px)`,
               left: `calc(50% + ${posX}px)`,

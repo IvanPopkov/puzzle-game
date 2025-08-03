@@ -1,9 +1,10 @@
-import "./Sudoku.css";
+import styles from "./Sudoku.module.css";
 import NumberWheel from "./NumberWheel/NumberWheel.tsx";
 import {FormControlLabel, Switch} from "@mui/material";
 import {SUDOKU_BOARD_SIZE, SUDOKU_GRID_SIZE} from "@utils/sudoku.constants.ts";
 import BoardCell from "./BoardCell/BoardCell.tsx";
 import {useSudokuGame} from "./hooks/useSudokuGame.ts";
+import Spinner from "@components/LoadingSpinner/LoadingSpinner.tsx";
 
 
 const SudokuGenerator = () => {
@@ -23,13 +24,14 @@ const SudokuGenerator = () => {
     errorCellIndexes,
     fillCandidates,
     generatePuzzle,
-    clearAll
+    clearAll,
+    isGenerating
   } = useSudokuGame();
 
 
   return (
-    <div className="container">
-      <p><a href="/public">Back</a></p>
+    <div className={styles.container}>
+      <p><a href="/">Back</a></p>
       <p>This is a sudoku game</p>
       {wheel && <NumberWheel {...wheel} onSelect={handleSelect} onClose={closeWheel}/>}
       <FormControlLabel
@@ -41,29 +43,34 @@ const SudokuGenerator = () => {
         }
         label={isInBlueprintMode ? "Blueprint" : "Editing"}
       />
-      <div className="one-click-bar">
+      <div className={styles.oneClickBar}>
         {Array.from({length: SUDOKU_GRID_SIZE}).map((_, index) => (
           <button
             key={index + 1}
-            className={oneClickNumber === index + 1 ? 'selected-number' : ''}
+            className={oneClickNumber === index + 1 ? styles.selectedNumber : ''}
             onClick={() => handleOneClickNumber(index)}
           >
             {index + 1}
           </button>
         ))}
       </div>
-      <div className="sudoku-grid">
-        {[...Array(SUDOKU_BOARD_SIZE)].map((_, index) => (
-          <BoardCell
-            key={`${index}-${index}`}
-            type={getCellType(index)}
-            userSolution={userSolution[index]}
-            candidates={candidates[index]}
-            numberInPuzzle={puzzle[index]}
-            handleClick={handleClick(index)}
-            invalid={errorCellIndexes.includes(index)}
-          />
-        ))}
+      <div className={styles.gameBoard}>
+        {isGenerating && (<Spinner/>)}
+        {!isGenerating && (
+          <div className={styles.sudokuGrid}>
+            {[...Array(SUDOKU_BOARD_SIZE)].map((_, index) => (
+              <BoardCell
+                key={`${index}-${index}`}
+                type={getCellType(index)}
+                userSolution={userSolution[index]}
+                candidates={candidates[index]}
+                numberInPuzzle={puzzle[index]}
+                handleClick={handleClick(index)}
+                invalid={errorCellIndexes.includes(index)}
+              />
+            ))}
+          </div>
+        )}
       </div>
       <button onClick={fillCandidates}>Fill empty cells</button>
       <button onClick={generatePuzzle}>Generate new puzzle</button>

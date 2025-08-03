@@ -27,6 +27,7 @@
       "@components/*": ["src/components/*"],
       "@hooks/*": ["src/hooks/*"],
       "@games/*": ["src/games/*"],
+      "@services/*": ["src/services/*"],
     }
   },
   "include": ["src"]

@@ -1,4 +1,4 @@
-import "./BoardCell.css";
+import styles from "./BoardCell.module.css";
 import React from "react";
 import {Candidates} from "../Candidates/Candidates.tsx";
 import {CellType} from "./CellType.ts";
@@ -14,7 +14,7 @@ interface BoardCellProps {
 
 const BoardCell: React.FC<BoardCellProps> = ({ type, userSolution, candidates, numberInPuzzle, handleClick, invalid }) => {
   const buildClass = () => {
-    return 'board-cell' + (invalid ? ' error' : '') + (type === CellType.GIVEN_NUMBER ? ' given-number' : '');
+    return styles.boardCell + (invalid ? styles.error : '') + (type === CellType.GIVEN_NUMBER ? styles.givenNumber : '');
   };
 
   return (
