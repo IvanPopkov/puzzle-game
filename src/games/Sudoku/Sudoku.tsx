@@ -72,9 +72,9 @@ const SudokuGenerator = () => {
           </div>
         )}
       </div>
-      <button onClick={fillCandidates}>Fill empty cells</button>
-      <button onClick={generatePuzzle}>Generate new puzzle</button>
-      <button onClick={clearAll}>Clear</button>
+      <button disabled={isGenerating} onClick={fillCandidates}>Fill empty cells</button>
+      <button disabled={isGenerating} onClick={generatePuzzle}>Generate new puzzle</button>
+      <button disabled={isGenerating} onClick={clearAll}>Clear</button>
     </div>
   );
 };
