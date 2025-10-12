@@ -1,6 +1,7 @@
 
 .boardCell {
-  border: 1px solid lightgray;
+  border-right: 1px solid lightgray;
+  border-bottom: 1px solid lightgray;
   padding: 0;
   font-size: 16px;
   width: 100%;
@@ -17,6 +18,14 @@
 
 .givenNumber {
   font-weight: 600;
+}
+
+.thickBorderLeft {
+  border-left: 3px solid lightgray;
+}
+
+.thickBorderTop {
+  border-top: 3px solid lightgray;
 }
 
 .error {

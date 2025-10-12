@@ -28,6 +28,14 @@ const SudokuGenerator = () => {
     isGenerating
   } = useSudokuGame();
 
+  const getPositionalClasses = (index: number): string[] => {
+    const row = Math.floor(index / 9);
+    const col = index % 9;
+    return [
+      row > 0 && row % 3 === 0 ? 'thickBorderTop' : '',
+      col > 0 && col % 3 === 0 ? 'thickBorderLeft' : ''
+    ];
+  }
 
   return (
     <div className={styles.container}>
@@ -67,6 +75,7 @@ const SudokuGenerator = () => {
                 numberInPuzzle={puzzle[index]}
                 handleClick={handleClick(index)}
                 invalid={errorCellIndexes.includes(index)}
+                positionalClasses={getPositionalClasses(index)}
               />
             ))}
           </div>
