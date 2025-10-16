@@ -131,3 +131,6 @@ dist
 
 bun.lock
 .idea
+
+# intelliJ
+*.DS_Store
