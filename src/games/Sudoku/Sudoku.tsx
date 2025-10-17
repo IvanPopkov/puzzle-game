@@ -5,6 +5,7 @@ import {SUDOKU_BOARD_SIZE, SUDOKU_GRID_SIZE} from "@utils/sudoku.constants.ts";
 import BoardCell from "./BoardCell/BoardCell.tsx";
 import {useSudokuGame} from "./hooks/useSudokuGame.ts";
 import Spinner from "@components/LoadingSpinner/LoadingSpinner.tsx";
+import ArrowCircleLeftOutlined from "@mui/icons-material/ArrowCircleLeftOutlined";
 
 
 const SudokuGenerator = () => {
@@ -39,8 +40,11 @@ const SudokuGenerator = () => {
 
   return (
     <div className={styles.container}>
-      <p><a href="/">Back</a></p>
-      <p>This is a sudoku game</p>
+      <div className={styles.header}>
+        <a className={styles.backButton} href="/">
+          <ArrowCircleLeftOutlined style={{fontSize: '64px'}} />
+        </a>
+      </div>
       {wheel && <NumberWheel {...wheel} onSelect={handleSelect} onClose={closeWheel}/>}
       <FormControlLabel
         control={
