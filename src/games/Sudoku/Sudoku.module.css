@@ -1,16 +1,18 @@
 
+.header {
+  width: 100%;
+  margin-left: 30px;
+  margin-top: 20px;
+  text-align: start;
+}
+
 .container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 100%;
-  margin-top: 20px;
-}
-
-.header {
-  width: 100%;
-  margin-left: 30px;
-  text-align: start;
+  width: 417px;
+  margin: 0 auto;
+  gap: 16px;
 }
 
 .backButton {
@@ -19,18 +21,14 @@
 }
 
 .oneClickBar {
+  width: 100%;
   display: flex;
   flex-direction: row;
-}
-
-.selectedNumber {
-  font-weight: bold;
-  border: 3px solid black;
+  justify-content: space-between;
 }
 
 .gameBoard {
   width: 100%;
-  max-width: 417px;
   height: 417px;
   display: flex;
   align-items: center;
