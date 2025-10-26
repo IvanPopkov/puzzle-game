@@ -1,5 +1,5 @@
 import React from "react";
-import styles from "./Sudoku.module.css";
+import styles from "./Sudoku.module.scss";
 import NumberWheel from "./NumberWheel/NumberWheel.tsx";
 import {Button, ToggleButton, ToggleButtonGroup} from "@mui/material";
 import {SUDOKU_BOARD_SIZE, SUDOKU_GRID_SIZE} from "@utils/sudoku.constants.ts";

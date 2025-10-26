@@ -1,3 +1,4 @@
+@import '@styles/mixins.scss';
 
 .header {
   width: 100%;
@@ -34,7 +35,7 @@
   align-items: center;
   border: 3px solid black;
 
-  @media screen and (max-width: 450px) {
+  @include mobile {
     width: 360px;
     height: 360px;
   }
