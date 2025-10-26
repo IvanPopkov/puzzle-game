@@ -67,13 +67,14 @@ export const useSudokuGame = () => {
     if (userSolution[index] === num) {
       num = 0;
     }
-    userSolution[index] = num;
-    setUserSolution(userSolution);
+    const updatedSolution = [...userSolution];
+    updatedSolution[index] = num;
+    setUserSolution(() => updatedSolution);
     if (num !== 0) {
       validateSolution(puzzle, num, index);
-    } else {
-      setErrorCellIndexes([]);
+      return;
     }
+    setErrorCellIndexes([]);
   };
 
   const handleSelect = (num: number, index: number) => {
