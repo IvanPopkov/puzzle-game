@@ -1,6 +1,6 @@
 import styles from "./Sudoku.module.css";
 import NumberWheel from "./NumberWheel/NumberWheel.tsx";
-import {FormControlLabel, Switch} from "@mui/material";
+import {Button, FormControlLabel, Switch} from "@mui/material";
 import {SUDOKU_BOARD_SIZE, SUDOKU_GRID_SIZE} from "@utils/sudoku.constants.ts";
 import BoardCell from "./BoardCell/BoardCell.tsx";
 import {useSudokuGame} from "./hooks/useSudokuGame.ts";
@@ -57,13 +57,13 @@ const SudokuGenerator = () => {
       />
       <div className={styles.oneClickBar}>
         {Array.from({length: SUDOKU_GRID_SIZE}).map((_, index) => (
-          <button
+          <Button
             key={index + 1}
             className={oneClickNumber === index + 1 ? styles.selectedNumber : ''}
             onClick={() => handleOneClickNumber(index)}
           >
             {index + 1}
-          </button>
+          </Button>
         ))}
       </div>
       <div className={styles.gameBoard}>
@@ -85,9 +85,9 @@ const SudokuGenerator = () => {
           </div>
         )}
       </div>
-      <button disabled={isGenerating} onClick={fillCandidates}>Fill empty cells</button>
-      <button disabled={isGenerating} onClick={generatePuzzle}>Generate new puzzle</button>
-      <button disabled={isGenerating} onClick={clearAll}>Clear</button>
+      <Button variant="contained" disabled={isGenerating} onClick={fillCandidates}>Fill empty cells</Button>
+      <Button variant="contained" disabled={isGenerating} onClick={generatePuzzle}>Generate new puzzle</Button>
+      <Button variant="contained" disabled={isGenerating} onClick={clearAll}>Clear</Button>
     </div>
   );
 };
