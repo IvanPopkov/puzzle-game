@@ -11,7 +11,7 @@ export const useSudokuGame = () => {
   const [candidates, setCandidates] = useState<number[][]>(Array.from({length: SUDOKU_BOARD_SIZE}, () => []));
   const [userSolution, setUserSolution] = useState<number[]>(Array(SUDOKU_BOARD_SIZE).fill(0));
   const [errorCellIndexes, setErrorCellIndexes] = useState<number[]>([]);
-  const [isInBlueprintMode, setIsInBlueprintMode] = useState<boolean>(false);
+  const [isInDraftMode, setIsInDraftMode] = useState<boolean>(false);
   const [oneClickNumber, setOneClickNumber] = useState<number | null>(null);
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
 
@@ -79,7 +79,7 @@ export const useSudokuGame = () => {
   const handleSelect = (num: number, index: number) => {
     closeWheel();
 
-    if (isInBlueprintMode) {
+    if (isInDraftMode) {
       handleCandidate(num, index);
     } else {
       handleUserInput(num, index);
@@ -119,11 +119,6 @@ export const useSudokuGame = () => {
       Array.from({length: SUDOKU_BOARD_SIZE}, () => [...Array(SUDOKU_GRID_SIZE).keys()].map(val => val + 1)));
   };
 
-  const handleOneClickNumber = (index: number) => {
-    const newNumber = index + 1;
-    setOneClickNumber(oneClickNumber === newNumber ? null : newNumber);
-  }
-
   const generatePuzzle = async () => {
     setIsGenerating(true);
     clearInput();
@@ -154,18 +149,18 @@ export const useSudokuGame = () => {
     userSolution,
     candidates,
     errorCellIndexes,
-    isInBlueprintMode,
+    isInDraftMode,
     oneClickNumber,
+    setOneClickNumber,
     wheel,
     handleClick,
     handleSelect,
-    handleOneClickNumber,
     generatePuzzle,
     fillCandidates,
     clearAll,
     getCellType,
     closeWheel,
-    setIsInBlueprintMode,
+    setIsInDraftMode,
     isGenerating
   };
 }
