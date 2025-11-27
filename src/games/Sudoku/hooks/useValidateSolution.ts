@@ -7,18 +7,20 @@ export const useValidateSolution = () => {
 
   const [errorCellIndexes, setErrorCellIndexes] = useState<number[]>([]);
 
+  const resetErrors = () => setErrorCellIndexes([]);
+
   const validateSolution = (puzzle: number[], num: number, index: number) => {
     const violations = getViolationsForCandidate(puzzle, num, index);
     if (violations.length > 0) {
       const errorIndexes = [];
       if (violations.includes(SudokuRuleViolation.COLUMN)) {
         const x = index % SUDOKU_GRID_SIZE;
-        const columnIndexes = [...Array(SUDOKU_GRID_SIZE).keys()].map(row => x + SUDOKU_GRID_SIZE * row);
+        const columnIndexes = [...new Array(SUDOKU_GRID_SIZE).keys()].map(row => x + SUDOKU_GRID_SIZE * row);
         errorIndexes.push(...columnIndexes);
       }
       if (violations.includes(SudokuRuleViolation.ROW)) {
         const y = Math.floor(index / SUDOKU_GRID_SIZE);
-        const columnIndexes = [...Array(SUDOKU_GRID_SIZE).keys()].map(column => column + SUDOKU_GRID_SIZE * y);
+        const columnIndexes = [...new Array(SUDOKU_GRID_SIZE).keys()].map(column => column + SUDOKU_GRID_SIZE * y);
         errorIndexes.push(...columnIndexes);
       }
       if (violations.includes(SudokuRuleViolation.BLOCK)) {
@@ -54,7 +56,7 @@ export const useValidateSolution = () => {
 
   return {
     errorCellIndexes,
-    setErrorCellIndexes,
+    resetErrors,
     validateSolution
   };
 }

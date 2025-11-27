@@ -9,13 +9,13 @@ import {useValidateSolution} from "@games/Sudoku/hooks/useValidateSolution.ts";
 export const useSudokuGame = () => {
   const {
     errorCellIndexes,
-    setErrorCellIndexes,
+    resetErrors,
     validateSolution
   } = useValidateSolution();
 
   const [puzzle, setPuzzle] = useState<number[]>([]);
   const [candidates, setCandidates] = useState<number[][]>(Array.from({length: SUDOKU_BOARD_SIZE}, () => []));
-  const [userSolution, setUserSolution] = useState<number[]>(Array(SUDOKU_BOARD_SIZE).fill(0));
+  const [userSolution, setUserSolution] = useState<number[]>(new Array(SUDOKU_BOARD_SIZE).fill(0));
   const [isInDraftMode, setIsInDraftMode] = useState<boolean>(false);
   const [oneClickNumber, setOneClickNumber] = useState<number | null>(null);
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
@@ -24,15 +24,15 @@ export const useSudokuGame = () => {
   const closeWheel = () => setWheel(null);
 
   const clearInput = () => {
-    setUserSolution(Array(SUDOKU_BOARD_SIZE).fill(0));
+    setUserSolution(new Array(SUDOKU_BOARD_SIZE).fill(0));
     setCandidates(Array.from({length: SUDOKU_BOARD_SIZE}, () => []));
-    setErrorCellIndexes([]);
+    resetErrors();
     setOneClickNumber(null);
   };
 
   const handleCandidate = (num: number, index: number) => {
     if (num && candidates[index].includes(num)) {
-      const numIndex = candidates[index].findIndex(value => value === num);
+      const numIndex = candidates[index].indexOf(num);
       candidates[index].splice(numIndex, 1);
     } else if (num) {
       candidates[index].push(num);
@@ -50,7 +50,7 @@ export const useSudokuGame = () => {
       validateSolution(puzzle, num, index);
       return;
     }
-    setErrorCellIndexes([]);
+    resetErrors();
   };
 
   const handleSelect = (num: number, index: number) => {
@@ -65,11 +65,11 @@ export const useSudokuGame = () => {
 
   const handleClick = (index: number) => {
     return (e: React.MouseEvent<HTMLDivElement>) => {
-      if (oneClickNumber !== null) {
-        handleSelect(oneClickNumber, index);
-      } else {
+      if (oneClickNumber === null) {
         const {clientX, clientY} = e;
         setWheel({x: clientX, y: clientY, index, n: SUDOKU_GRID_SIZE + 1});
+      } else {
+        handleSelect(oneClickNumber, index);
       }
     };
   }
@@ -93,7 +93,7 @@ export const useSudokuGame = () => {
 
   const fillCandidates = () => {
     setCandidates(
-      Array.from({length: SUDOKU_BOARD_SIZE}, () => [...Array(SUDOKU_GRID_SIZE).keys()].map(val => val + 1)));
+      Array.from({length: SUDOKU_BOARD_SIZE}, () => [...new Array(SUDOKU_GRID_SIZE).keys()].map(val => val + 1)));
   };
 
   const generatePuzzle = async () => {
