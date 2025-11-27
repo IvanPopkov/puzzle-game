@@ -4,9 +4,16 @@ import {
   areColumnsValid,
   isContainingDuplicates,
   isSudokuValid,
-  areBlocksValid, SudokuRuleViolation, getSudokuRulesViolations
+  areBlocksValid,
+  ViolationType,
+  getSudokuRulesViolations,
+  getViolations,
+  getInvalidRows,
+  getInvalidColumns,
+  getInvalidBlocks
 } from "./sudoku-validity-check.ts";
 import {SUDOKU_GRID_SIZE} from "./sudoku.constants.ts";
+import {PUZZLE_4_9, PUZZLE_5_9, PUZZLE_9_9} from "@testing/utils/sudoku-test-utils.ts";
 
 const PUZZLE_0_9: number[] = [
   9, 0, 0,  0, 0, 0,  0, 0, 0,
@@ -20,48 +27,6 @@ const PUZZLE_0_9: number[] = [
   0, 0, 0,  0, 0, 0,  0, 0, 0,
   0, 0, 0,  0, 0, 0,  0, 0, 0,
   0, 0, 0,  0, 0, 0,  0, 0, 0
-];
-
-const PUZZLE_4_9: number[] = [
-  4, 7, 2,  1, 9, 6,  5, 3, 8,
-  1, 5, 9,  3, 8, 7,  2, 4, 6,
-  3, 6, 8,  5, 2, 4,  7, 9, 1,
-
-  9, 1, 3,  0, 0, 0,  0, 0, 0,
-  6, 8, 7,  0, 0, 0,  0, 0, 0,
-  2, 4, 5,  0, 0, 0,  0, 0, 0,
-
-  0, 0, 0,  0, 0, 0,  0, 0, 0,
-  0, 0, 0,  0, 0, 0,  0, 0, 0,
-  0, 0, 0,  0, 0, 0,  0, 0, 0
-];
-
-const PUZZLE_5_9: number[] = [
-  4, 7, 2,  1, 9, 6,  5, 3, 8,
-  1, 5, 9,  3, 8, 7,  2, 4, 6,
-  3, 6, 8,  5, 2, 4,  7, 9, 1,
-
-  9, 1, 3,  8, 7, 5,  0, 0, 0,
-  6, 8, 7,  4, 1, 2,  0, 0, 0,
-  2, 4, 5,  9, 6, 3,  0, 0, 0,
-
-  0, 0, 0,  0, 0, 0,  0, 0, 0,
-  0, 0, 0,  0, 0, 0,  0, 0, 0,
-  0, 0, 0,  0, 0, 0,  0, 0, 0
-];
-
-const PUZZLE_9_9: number[] = [
-  4, 7, 2,  1, 9, 6,  5, 3, 8,
-  1, 5, 9,  3, 8, 7,  2, 4, 6,
-  3, 6, 8,  5, 2, 4,  7, 9, 1,
-
-  9, 1, 3,  8, 7, 5,  6, 2, 4,
-  6, 8, 7,  4, 1, 2,  3, 5, 9,
-  2, 4, 5,  9, 6, 3,  8, 1, 7,
-
-  5, 2, 6,  7, 4, 9,  1, 8, 3,
-  7, 9, 1,  2, 3, 8,  4, 6, 5,
-  8, 3, 4,  6, 5, 1,  9, 7, 2
 ];
 
 describe('Sudoku validity check', () => {
@@ -145,13 +110,152 @@ describe('Sudoku validity check', () => {
 
   describe('getSudokuRulesViolations', () => {
     it.each([
-      { board: boardWithIncorrectRow(), expected: [SudokuRuleViolation.ROW] },
-      { board: boardWithIncorrectColumn(), expected: [SudokuRuleViolation.COLUMN] },
-      { board: boardWithIncorrectBlock(), expected: [SudokuRuleViolation.BLOCK] },
+      { board: boardWithIncorrectRow(), expected: [ViolationType.ROW] },
+      { board: boardWithIncorrectColumn(), expected: [ViolationType.COLUMN] },
+      { board: boardWithIncorrectBlock(), expected: [ViolationType.BLOCK] },
       { board: PUZZLE_9_9, expected: [] },
-      { board: boardWithIncorrectEverything(), expected: [SudokuRuleViolation.ROW, SudokuRuleViolation.COLUMN, SudokuRuleViolation.BLOCK] }
+      { board: boardWithIncorrectEverything(), expected: [ViolationType.ROW, ViolationType.COLUMN, ViolationType.BLOCK] }
     ])('should return correct violations', ({ board, expected }) => {
       expect(getSudokuRulesViolations(board)).toEqual(expected);
+    });
+  });
+
+  describe('getInvalidRows', () => {
+    it.each([
+      { board: Array(81).fill(0) },
+      { board: PUZZLE_0_9 },
+      { board: PUZZLE_4_9 },
+      { board: PUZZLE_5_9 },
+      { board: PUZZLE_9_9 }
+    ])('should return empty array for valid board', ({ board }) => {
+      expect(getInvalidRows(board)).toEqual([]);
+    });
+
+    it('should return array with multiple invalid row indices', () => {
+      const board = [...PUZZLE_9_9];
+      board[1] = board[0]; // Duplicate in row 0
+      board[10] = board[9]; // Duplicate in row 1
+      board[19] = board[18]; // Duplicate in row 2
+      expect(getInvalidRows(board)).toEqual([0, 1, 2]);
+    });
+
+    it('should not count zeros as duplicates', () => {
+      const board = Array(81).fill(0);
+      expect(getInvalidRows(board)).toEqual([]);
+    });
+  });
+
+  describe('getInvalidColumns', () => {
+    it.each([
+      { board: PUZZLE_0_9 },
+      { board: PUZZLE_4_9 },
+      { board: PUZZLE_5_9 },
+      { board: PUZZLE_9_9 }
+    ])('should return empty array for valid board', ({board}) => {
+      expect(getInvalidColumns(board)).toEqual([]);
+    });
+
+    it('should return array with multiple invalid column indices', () => {
+      const board = [...PUZZLE_9_9];
+      board[9] = board[0]; // Duplicate in column 0
+      board[10] = board[1]; // Duplicate in column 1
+      board[11] = board[2]; // Duplicate in column 2
+      expect(getInvalidColumns(board)).toEqual([0, 1, 2]);
+    });
+
+    it('should not count zeros as duplicates', () => {
+      const board = Array(81).fill(0);
+      expect(getInvalidColumns(board)).toEqual([]);
+    });
+  });
+
+  describe('getInvalidBlocks', () => {
+    it.each([
+      { board: PUZZLE_0_9 },
+      { board: PUZZLE_4_9 },
+      { board: PUZZLE_5_9 },
+      { board: PUZZLE_9_9 }
+    ])('should return empty array for a valid board', ({board}) => {
+      expect(getInvalidBlocks(board)).toEqual([]);
+    });
+
+    it('should return array with multiple invalid block indices', () => {
+      const board = [...PUZZLE_9_9];
+      board[10] = board[0]; // Duplicate in block 0 (top-left)
+      board[14] = board[3]; // Duplicate in block 1 (top-middle)
+      board[17] = board[6]; // Duplicate in block 2 (top-right)
+      expect(getInvalidBlocks(board)).toEqual([0, 1, 2]);
+    });
+
+    it('should detect duplicate in bottom-right block (block 8)', () => {
+      const board = [...PUZZLE_9_9];
+      // Block 8 is bottom-right: indices 60,61,62,69,70,71,78,79,80
+      board[80] = board[60];
+      expect(getInvalidBlocks(board)).toEqual([8]);
+    });
+
+    it('should not count zeros as duplicates', () => {
+      const board = Array(81).fill(0);
+      expect(getInvalidBlocks(board)).toEqual([]);
+    });
+  });
+
+  describe('getViolations', () => {
+    it.each([
+      { board: PUZZLE_0_9 },
+      { board: PUZZLE_4_9 },
+      { board: PUZZLE_5_9 },
+      { board: PUZZLE_9_9 }
+    ])('should return empty arrays for valid board', ({board}) => {
+      const violations = getViolations(board);
+      expect(violations.rows).toEqual(undefined);
+      expect(violations.columns).toEqual(undefined);
+      expect(violations.blocks).toEqual(undefined);
+    });
+
+    it('should return row violations only', () => {
+      const board = [...PUZZLE_5_9];
+      board[33] = 9; // Duplicate in row 4
+      const violations = getViolations(board);
+      expect(violations.rows).toEqual([3]);
+      expect(violations.columns).toEqual(undefined);
+      expect(violations.blocks).toEqual(undefined);
+    });
+
+    it('should return column violations only', () => {
+      const board = [...PUZZLE_5_9];
+      board[33] = 2; // Duplicate in column 7
+      const violations = getViolations(board);
+      expect(violations.rows).toEqual(undefined);
+      expect(violations.columns).toEqual([6]);
+      expect(violations.blocks).toEqual(undefined);
+    });
+
+    it('should return block violations only', () => {
+      const board = [...PUZZLE_4_9];
+      board[30] = 4;
+      board[40] = 4;
+      const violations = getViolations(board);
+      expect(violations.rows).toEqual(undefined);
+      expect(violations.columns).toEqual(undefined);
+      expect(violations.blocks).toEqual([4]);
+    });
+
+    it('should return multiple violation types', () => {
+      const board = [...PUZZLE_9_9];
+      board[1] = board[0]; // Row 0, Column 1, Block 0
+      board[72] = board[63]; // Row 8, Column 0, Block 6
+      board[40] = board[4]; // Column 4, Block 4
+
+      const violations = getViolations(board);
+      expect(violations.rows).toContain(0);
+      expect(violations.rows).toContain(8);
+      expect(violations.columns).toContain(0);
+      expect(violations.columns).toContain(1);
+      expect(violations.columns).toContain(4);
+      expect(violations.blocks).toContain(0);
+      expect(violations.blocks).toContain(4);
+      expect(violations.blocks).toContain(6);
     });
   });
 

@@ -1,11 +1,70 @@
 import {SUDOKU_GRID_SIZE, SUDOKU_BOARD_SIZE} from "./sudoku.constants.ts";
 import {extractBlock} from "./block-extract.ts";
 
-export enum SudokuRuleViolation {
+export type SudokuRuleViolations = {
+  rows?: number[];
+  columns?: number[];
+  blocks?: number[];
+}
+
+export enum ViolationType {
   ROW = 'row',
   COLUMN = 'column',
   BLOCK = 'block'
 }
+
+export const getViolations = (board: number[]): SudokuRuleViolations => {
+  const invalidRows = getInvalidRows(board);
+  const invalidColumns = getInvalidColumns(board);
+  const invalidBlocks = getInvalidBlocks(board);
+
+  return {
+    ...(invalidRows.length > 0 && { rows: invalidRows }),
+    ...(invalidColumns.length > 0 && { columns: invalidColumns }),
+    ...(invalidBlocks.length > 0 && { blocks: invalidBlocks })
+  }
+}
+
+export const getInvalidRows = (board: number[]): number[] => {
+  const invalidRows: number[] = [];
+  for (let i = 0; i < SUDOKU_GRID_SIZE; i++) {
+    const row = board.slice(i * SUDOKU_GRID_SIZE, (i + 1) * SUDOKU_GRID_SIZE);
+    if (isContainingDuplicates(row)) {
+      invalidRows.push(i);
+    }
+  }
+
+  return invalidRows;
+};
+
+export const getInvalidColumns = (board: number[]): number[] => {
+  const invalidColumns: number[] = [];
+  for (let colIndex = 0; colIndex < SUDOKU_GRID_SIZE; colIndex++) {
+    const column: number[] = [];
+    for (let rowIndex = 0; rowIndex < SUDOKU_GRID_SIZE; rowIndex++) {
+      column.push(board[rowIndex * SUDOKU_GRID_SIZE + colIndex]);
+    }
+    if (isContainingDuplicates(column)) {
+      invalidColumns.push(colIndex);
+    }
+  }
+
+  return invalidColumns;
+};
+
+export const getInvalidBlocks = (board: number[]): number[] => {
+  const invalidBlocks: number[] = [];
+  for (let blockRow = 0; blockRow < 3; blockRow++) {
+    for (let blockCol = 0; blockCol < 3; blockCol++) {
+      const block = extractBlock(blockRow, blockCol, board);
+      if (isContainingDuplicates(block)) {
+        invalidBlocks.push(blockRow * 3 + blockCol);
+      }
+    }
+  }
+
+  return invalidBlocks;
+};
 
 export const isSudokuValid = (board: number[]) : boolean => {
   const isIncorrectBoardLength = board.length !== SUDOKU_BOARD_SIZE;
@@ -15,17 +74,17 @@ export const isSudokuValid = (board: number[]) : boolean => {
     : areRowsValid(board) && areColumnsValid(board) && areBlocksValid(board);
 };
 
-export const getSudokuRulesViolations = (board: number[]): SudokuRuleViolation[] => {
-  const violations: SudokuRuleViolation[] = [];
+export const getSudokuRulesViolations = (board: number[]): ViolationType[] => {
+  const violations: ViolationType[] = [];
 
   if (!areRowsValid(board)) {
-    violations.push(SudokuRuleViolation.ROW);
+    violations.push(ViolationType.ROW);
   }
   if (!areColumnsValid(board)) {
-    violations.push(SudokuRuleViolation.COLUMN);
+    violations.push(ViolationType.COLUMN);
   }
   if (!areBlocksValid(board)) {
-    violations.push(SudokuRuleViolation.BLOCK);
+    violations.push(ViolationType.BLOCK);
   }
 
   return violations;

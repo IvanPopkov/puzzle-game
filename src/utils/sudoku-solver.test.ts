@@ -1,34 +1,7 @@
 import {describe, expect, it} from "vitest";
 import {solveSudoku} from "./sudoku-solver.ts";
+import {PUZZLE_9_9} from "@testing/utils/sudoku-test-utils.ts";
 
-
-const PUZZLE_5_9: number[] = [
-  4, 7, 2,  1, 9, 6,  5, 3, 8,
-  1, 5, 9,  3, 8, 7,  2, 4, 6,
-  3, 6, 8,  5, 2, 4,  7, 9, 1,
-
-  9, 1, 3,  8, 7, 5,  6, 2, 4,
-  6, 8, 7,  4, 1, 2,  3, 5, 9,
-  2, 4, 5,  9, 6, 3,  8, 1, 7,
-
-  5, 2, 6,  7, 4, 9,  1, 8, 3,
-  0, 0, 0,  0, 0, 0,  0, 0, 0,
-  0, 0, 0,  0, 0, 0,  0, 0, 0
-];
-
-const PUZZLE_9_9: number[] = [
-  4, 7, 2,  1, 9, 6,  5, 3, 8,
-  1, 5, 9,  3, 8, 7,  2, 4, 6,
-  3, 6, 8,  5, 2, 4,  7, 9, 1,
-
-  9, 1, 3,  8, 7, 5,  6, 2, 4,
-  6, 8, 7,  4, 1, 2,  3, 5, 9,
-  2, 4, 5,  9, 6, 3,  8, 1, 7,
-
-  5, 2, 6,  7, 4, 9,  1, 8, 3,
-  7, 9, 1,  2, 3, 8,  4, 6, 5,
-  8, 3, 4,  6, 5, 1,  9, 7, 2
-];
 
 describe('Sudoku solver', () => {
   it('should find a single solution', () => {
@@ -52,6 +25,19 @@ describe('Sudoku solver', () => {
 
   it('should find multiple solutions', () => {
     const solution1 = [...PUZZLE_9_9];
+    const boardToSolve: number[] = [
+      4, 7, 2,  1, 9, 6,  5, 3, 8,
+      1, 5, 9,  3, 8, 7,  2, 4, 6,
+      3, 6, 8,  5, 2, 4,  7, 9, 1,
+
+      9, 1, 3,  8, 7, 5,  6, 2, 4,
+      6, 8, 7,  4, 1, 2,  3, 5, 9,
+      2, 4, 5,  9, 6, 3,  8, 1, 7,
+
+      5, 2, 6,  7, 4, 9,  1, 8, 3,
+      0, 0, 0,  0, 0, 0,  0, 0, 0,
+      0, 0, 0,  0, 0, 0,  0, 0, 0
+    ];
     const solution2 = [
       4, 7, 2,  1, 9, 6,  5, 3, 8,
       1, 5, 9,  3, 8, 7,  2, 4, 6,
@@ -65,7 +51,7 @@ describe('Sudoku solver', () => {
       8, 3, 4,  6, 5, 1,  9, 7, 2,
       7, 9, 1,  2, 3, 8,  4, 6, 5
     ];
-    const res = solveSudoku(PUZZLE_5_9);
+    const res = solveSudoku(boardToSolve);
     expect(res).toEqual([solution1, solution2]);
   })
 });
