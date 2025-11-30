@@ -208,9 +208,9 @@ describe('Sudoku validity check', () => {
       { board: PUZZLE_9_9 }
     ])('should return empty arrays for valid board', ({board}) => {
       const violations = getViolations(board);
-      expect(violations.rows).toEqual(undefined);
-      expect(violations.columns).toEqual(undefined);
-      expect(violations.blocks).toEqual(undefined);
+      expect(violations.rows).toEqual([]);
+      expect(violations.columns).toEqual([]);
+      expect(violations.blocks).toEqual([]);
     });
 
     it('should return row violations only', () => {
@@ -218,17 +218,17 @@ describe('Sudoku validity check', () => {
       board[33] = 9; // Duplicate in row 4
       const violations = getViolations(board);
       expect(violations.rows).toEqual([3]);
-      expect(violations.columns).toEqual(undefined);
-      expect(violations.blocks).toEqual(undefined);
+      expect(violations.columns).toEqual([]);
+      expect(violations.blocks).toEqual([]);
     });
 
     it('should return column violations only', () => {
       const board = [...PUZZLE_5_9];
       board[33] = 2; // Duplicate in column 7
       const violations = getViolations(board);
-      expect(violations.rows).toEqual(undefined);
+      expect(violations.rows).toEqual([]);
       expect(violations.columns).toEqual([6]);
-      expect(violations.blocks).toEqual(undefined);
+      expect(violations.blocks).toEqual([]);
     });
 
     it('should return block violations only', () => {
@@ -236,8 +236,8 @@ describe('Sudoku validity check', () => {
       board[30] = 4;
       board[40] = 4;
       const violations = getViolations(board);
-      expect(violations.rows).toEqual(undefined);
-      expect(violations.columns).toEqual(undefined);
+      expect(violations.rows).toEqual([]);
+      expect(violations.columns).toEqual([]);
       expect(violations.blocks).toEqual([4]);
     });
 

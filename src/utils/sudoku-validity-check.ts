@@ -2,9 +2,9 @@ import {SUDOKU_GRID_SIZE, SUDOKU_BOARD_SIZE} from "./sudoku.constants.ts";
 import {extractBlock} from "./block-extract.ts";
 
 export type SudokuRuleViolations = {
-  rows?: number[];
-  columns?: number[];
-  blocks?: number[];
+  rows: number[];
+  columns: number[];
+  blocks: number[];
 }
 
 export enum ViolationType {
@@ -14,14 +14,10 @@ export enum ViolationType {
 }
 
 export const getViolations = (board: number[]): SudokuRuleViolations => {
-  const invalidRows = getInvalidRows(board);
-  const invalidColumns = getInvalidColumns(board);
-  const invalidBlocks = getInvalidBlocks(board);
-
   return {
-    ...(invalidRows.length > 0 && { rows: invalidRows }),
-    ...(invalidColumns.length > 0 && { columns: invalidColumns }),
-    ...(invalidBlocks.length > 0 && { blocks: invalidBlocks })
+    rows: getInvalidRows(board),
+    columns: getInvalidColumns(board),
+    blocks: getInvalidBlocks(board)
   }
 }
 
