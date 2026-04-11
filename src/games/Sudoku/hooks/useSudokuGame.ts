@@ -10,7 +10,7 @@ export const useSudokuGame = () => {
   const {
     errorCellIndexes,
     resetErrors,
-    validateSolution
+    validateSolutionV2
   } = useValidateSolution();
 
   const [puzzle, setPuzzle] = useState<number[]>([]);
@@ -47,11 +47,15 @@ export const useSudokuGame = () => {
     updatedSolution[index] = num;
     setUserSolution(() => updatedSolution);
     if (num !== 0) {
-      validateSolution(puzzle, num, index);
+      validateSolutionV2(mergePuzzleAndSolution());
       return;
     }
     resetErrors();
   };
+
+  const mergePuzzleAndSolution = () => {
+    return puzzle.map((cell, index) => userSolution[index] || cell);
+  }
 
   const handleSelect = (num: number, index: number) => {
     closeWheel();
