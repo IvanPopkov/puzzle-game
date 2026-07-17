@@ -10,7 +10,7 @@ export const useSudokuGame = () => {
   const {
     errorCellIndexes,
     resetErrors,
-    validateSolutionV2
+    validateSolution
   } = useValidateSolution();
 
   const [puzzle, setPuzzle] = useState<number[]>([]);
@@ -31,12 +31,16 @@ export const useSudokuGame = () => {
   };
 
   const handleCandidate = (num: number, index: number) => {
-    if (num && candidates[index].includes(num)) {
-      const numIndex = candidates[index].indexOf(num);
-      candidates[index].splice(numIndex, 1);
-    } else if (num) {
-      candidates[index].push(num);
-    }
+    if (!num) return;
+    setCandidates(prev =>
+      prev.map((cell, i) =>
+        i !== index
+          ? cell
+          : cell.includes(num)
+            ? cell.filter(n => n !== num)
+            : [...cell, num]
+      )
+    );
   };
 
   const handleUserInput = (num: number, index: number) => {
@@ -47,7 +51,7 @@ export const useSudokuGame = () => {
     updatedSolution[index] = num;
     setUserSolution(() => updatedSolution);
     if (num !== 0) {
-      validateSolutionV2(mergePuzzleAndSolution());
+      validateSolution(mergePuzzleAndSolution());
       return;
     }
     resetErrors();

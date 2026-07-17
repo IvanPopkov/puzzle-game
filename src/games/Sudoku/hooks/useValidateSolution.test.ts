@@ -13,7 +13,7 @@ describe("validateSolutionV2", () => {
     const {result} = renderHook(() => useValidateSolution());
 
     act(() => {
-      result.current.validateSolutionV2(board);
+      result.current.validateSolution(board);
     });
 
     expect(result.current.errorCellIndexes).toEqual([]);
@@ -27,7 +27,7 @@ describe("validateSolutionV2", () => {
     puzzle[19] = puzzle[18]; // Duplicate in row 2
 
     act(() => {
-      result.current.validateSolutionV2(puzzle);
+      result.current.validateSolution(puzzle);
     });
 
     const row0Indexes = [0, 1, 2, 3, 4, 5, 6, 7, 8];
@@ -47,7 +47,7 @@ describe("validateSolutionV2", () => {
     puzzle[56] = 3; // Duplicate in column 2
 
     act(() => {
-      result.current.validateSolutionV2(puzzle);
+      result.current.validateSolution(puzzle);
     });
 
     const col0Indexes = [0, 9, 18, 27, 36, 45, 54, 63, 72];
@@ -67,7 +67,7 @@ describe("validateSolutionV2", () => {
     puzzle[80] = puzzle[60]; // Duplicate in block 8
 
     act(() => {
-      result.current.validateSolutionV2(puzzle);
+      result.current.validateSolution(puzzle);
     });
 
     const block0Indexes = [0, 1, 2, 9, 10, 11, 18, 19, 20];
@@ -87,7 +87,7 @@ describe("validateSolutionV2", () => {
     puzzle[80] = puzzle[60]; // Block 8 is duplicated
 
     act(() => {
-      result.current.validateSolutionV2(puzzle);
+      result.current.validateSolution(puzzle);
     });
 
     expect(result.current.errorCellIndexes.length).toBeGreaterThan(0);
