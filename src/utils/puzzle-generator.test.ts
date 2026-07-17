@@ -4,48 +4,8 @@ import {
   insertBlockIntoBoard,
   generateBoard, generateCandidatesStrategy
 } from "./puzzle-generator.ts";
+import {PUZZLE_4_9, PUZZLE_5_9, PUZZLE_9_9} from "../testing/utils/sudoku-test-utils.ts";
 
-const PUZZLE_4_9: (number | '')[] = [
-  4, 7, 2,  1, 9, 6,  5, 3, 8,
-  1, 5, 9,  3, 8, 7,  2, 4, 6,
-  3, 6, 8,  5, 2, 4,  7, 9, 1,
-
-  9, 1, 3,  '', '', '',  '', '', '',
-  6, 8, 7,  '', '', '',  '', '', '',
-  2, 4, 5,  '', '', '',  '', '', '',
-
-  '', '', '',  '', '', '',  '', '', '',
-  '', '', '',  '', '', '',  '', '', '',
-  '', '', '',  '', '', '',  '', '', ''
-];
-
-const PUZZLE_5_9: (number | '')[] = [
-  4, 7, 2,  1, 9, 6,  5, 3, 8,
-  1, 5, 9,  3, 8, 7,  2, 4, 6,
-  3, 6, 8,  5, 2, 4,  7, 9, 1,
-
-  9, 1, 3,  8, 7, 5,  '', '', '',
-  6, 8, 7,  4, 1, 2,  '', '', '',
-  2, 4, 5,  9, 6, 3,  '', '', '',
-
-  '', '', '',  '', '', '',  '', '', '',
-  '', '', '',  '', '', '',  '', '', '',
-  '', '', '',  '', '', '',  '', '', ''
-];
-
-const PUZZLE_9_9 = [
-  4, 7, 2,  1, 9, 6,  5, 3, 8,
-  1, 5, 9,  3, 8, 7,  2, 4, 6,
-  3, 6, 8,  5, 2, 4,  7, 9, 1,
-
-  9, 1, 3,  8, 7, 5,  6, 2, 4,
-  6, 8, 7,  4, 1, 2,  3, 5, 9,
-  2, 4, 5,  9, 6, 3,  8, 1, 7,
-
-  5, 2, 6,  7, 4, 9,  1, 8, 3,
-  7, 9, 1,  2, 3, 8,  4, 6, 5,
-  8, 3, 4,  6, 5, 1,  9, 7, 2
-];
 
 describe('Puzzle Generator', () => {
 
@@ -63,8 +23,8 @@ describe('Puzzle Generator', () => {
 
   describe('generateBlock', () => {
     [
-      { title: 'generated block', candidates: [6, 4, 2, 3, 5, 9, 8, 1, 7], expected: [6, 2, 4, 3, 5, 9, 8, 1, 7] },
-      { title: '-1 when cannot generate block', candidates: [4, 2, 6, 3, 5, 9, 8, 1, 7], expected: -1 }
+      {title: 'generated block', candidates: [6, 4, 2, 3, 5, 9, 8, 1, 7], expected: [6, 2, 4, 3, 5, 9, 8, 1, 7]},
+      {title: '-1 when cannot generate block', candidates: [4, 2, 6, 3, 5, 9, 8, 1, 7], expected: -1}
     ].forEach(testCase => {
       it(`should return ${testCase.title}`, () => {
         // GIVEN
@@ -161,6 +121,4 @@ describe('Puzzle Generator', () => {
       }
     });
   });
-
-
 });

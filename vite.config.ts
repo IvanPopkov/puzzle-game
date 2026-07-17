@@ -4,7 +4,6 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react-swc'
 
 export default defineConfig({
-  test: {},
   base: '/puzzle-game/',
   plugins: [react()],
   resolve: {
@@ -14,6 +13,8 @@ export default defineConfig({
       '@components': '/src/components',
       '@hooks': '/src/hooks',
       '@services': '/src/services',
+      '@styles': '/src/styles',
+      '@testing': '/src/testing'
     }
   }
 })

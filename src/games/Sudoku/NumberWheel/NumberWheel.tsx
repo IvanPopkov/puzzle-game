@@ -50,7 +50,7 @@ const NumberWheel: React.FC<NumberWheelProps> = ({ n, x, y, index, onSelect, onC
         const value = i + 1 < n ? i + 1 : 0;
 
         return (
-          <button
+          <div
             key={value}
             className={styles.number}
             style={{
@@ -60,7 +60,7 @@ const NumberWheel: React.FC<NumberWheelProps> = ({ n, x, y, index, onSelect, onC
             onClick={() => onSelect(value, index)}
           >
             { value === 0 ? '' : value }
-          </button>
+          </div>
         );
       })}
     </div>

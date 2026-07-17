@@ -28,6 +28,8 @@
       "@hooks/*": ["src/hooks/*"],
       "@games/*": ["src/games/*"],
       "@services/*": ["src/services/*"],
+      "@styles/*": ["src/styles/*"],
+      "@testing/*": ["src/testing/*"]
     }
   },
   "include": ["src"]
